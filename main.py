@@ -5,6 +5,9 @@ import os
 import sys
 import matplotlib
 from constants import *
+#import detect
+import os
+import cv2
 
 def get_time_string(tsecs):
     
@@ -34,7 +37,7 @@ def write_output(parameters):
     f.write(s)
     f.close()
 
-def plot_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RATIO):
+def analyze_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RATIO):
 
     fs, frames = wavfile.read(filename)
     channels = [
@@ -43,6 +46,7 @@ def plot_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RATIO
     ]
     
     duration = int(len(channels[0]) / (FREQ * 1.0))
+    time_splits = []
     for i in xrange(duration):
         start = i*(FREQ)
         
@@ -60,11 +64,36 @@ def plot_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RATIO
         
         if SAVE_IMAGES:
             pylab.savefig(SPEC_FOLDER + str(i) + ".png", bbox_inches='tight', pad_inches=0)
-        
-    return [Pxx, t, freqs]
+
+        pylab.savefig(TEMP_FILE, bbox_inches='tight', pad_inches=0)
+        img = cv2.imread(TEMP_FILE)
+        os.remove(TEMP_FILE)
+        if detect.analyze(img):
+            time_splits.append(i)
+    
+    return time_splits
+
+def write_output(time_splits):
+    
+    base = 0
+    f = open(OUTPUT, 'w')
+    for split in time_splits:
+        delta = split - base
+        base = split
+        s = get_time_string(split) + " = "
+        if delta < TIME_THRESH:
+            s += "Commercial"
+        else:
+            s += "TV"
+        s += "\n"
+        f.write(s)
+    f.close()
         
 def main():
     
-    Pxx, t, freqs = plot_spectrogram(sys.argv[1])    
+#    time_splits = analyze_spectrogram(sys.argv[1])  
+    time_splits = [0, 2, 7] 
+    write_output(time_splits) 
+#    print time_splits
     
 main()
