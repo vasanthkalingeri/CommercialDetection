@@ -5,7 +5,7 @@ import os
 import sys
 import matplotlib
 from constants import *
-#import detect
+import detect
 import os
 import cv2
 
@@ -37,6 +37,13 @@ def write_output(parameters):
     f.write(s)
     f.close()
 
+def show_status(num):
+    
+    sys.stdout.write('\r')
+    # the exact output you're looking for:
+    sys.stdout.write("[%-20s] %d%%" % ('='*num, 5*num))
+    sys.stdout.flush()
+        
 def analyze_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RATIO):
 
     fs, frames = wavfile.read(filename)
@@ -70,6 +77,9 @@ def analyze_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RA
         os.remove(TEMP_FILE)
         if detect.analyze(img):
             time_splits.append(i)
+        sys.stdout.write('\r')
+        sys.stdout.write("[%-20s] %d%%" % ('='*i, int(i / duration)))
+        sys.stdout.flush()
     
     return time_splits
 
@@ -88,12 +98,18 @@ def write_output(time_splits):
         s += "\n"
         f.write(s)
     f.close()
-        
+
+def generate_audio(filename):
+
+    print "Generating audio.."
+    os.system("ffmpeg -i "+ filename +" -ab 160k -ac 2 -ar 44100 -vn " + AUDIO_FILE)    
+    print "Done generating"
+    
 def main():
     
-#    time_splits = analyze_spectrogram(sys.argv[1])  
-    time_splits = [0, 2, 7] 
+    generate_audio(sys.argv[1])
+    print "Analyzing audio"
+    time_splits = analyze_spectrogram(AUDIO_FILE)  
     write_output(time_splits) 
-#    print time_splits
     
 main()
