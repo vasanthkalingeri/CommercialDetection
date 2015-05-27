@@ -1,14 +1,15 @@
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pylab as pylab
 from scipy.io import wavfile
 import numpy as np
 import os
 import sys
-import matplotlib
 from constants import *
 import detect
 import os
 import cv2
-matplotlib.use('Agg')
+
 
 def get_time_string(tsecs):
     
