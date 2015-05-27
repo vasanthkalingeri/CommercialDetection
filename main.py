@@ -8,6 +8,7 @@ from constants import *
 import detect
 import os
 import cv2
+matplotlib.use('Agg')
 
 def get_time_string(tsecs):
     
