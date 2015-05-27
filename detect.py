@@ -42,8 +42,8 @@ def preprocess(img):
 
     blur = cv2.medianBlur(img,5)
     img = blur
-    clahe = cv2.createCLAHE(clipLimit=0.5, tileGridSize=(5,5))
-    img = clahe.apply(img)
+#    clahe = cv2.createCLAHE(clipLimit=0.5, tileGridSize=(5,5))
+#    img = clahe.apply(img)
 #    cv2.imshow('eq',img)
     
     blur = cv2.GaussianBlur(img,(5,5),0)
