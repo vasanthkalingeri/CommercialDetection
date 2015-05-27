@@ -16,34 +16,22 @@ def get_time_string(tsecs):
     time_string = str(int(h)) + ":" + str(int(m)) + ":" + str(int(s))
     return time_string
 
-def write_output(parameters):
+def write_output(time_splits):
     
-    time_string = parameters[0]
-    features = parameters[1]
-    
-    errors = features #For now we only have one feature
-    repeated = 0
-    splits = [time_string[0]]
-    flag = True
-    for i in xrange(np.shape(errors)[0]):
-        if (errors[i] < 3) and (flag is True):
-            splits.append(time_string[i])
-            flag = False
-        elif (errors[i] > 100):
-            flag = True
-    
-    f = open(OUTPUT, "w")
-    s = "\n".join(splits)
-    f.write(s)
+    base = 0
+    f = open(OUTPUT, 'w')
+    for split in time_splits:
+        delta = split - base
+        base = split
+        s = get_time_string(split) + " = "
+        if delta < TIME_THRESH:
+            s += "Commercial"
+        else:
+            s += "TV"
+        s += "\n"
+        f.write(s)
     f.close()
 
-def show_status(num):
-    
-    sys.stdout.write('\r')
-    # the exact output you're looking for:
-    sys.stdout.write("[%-20s] %d%%" % ('='*num, 5*num))
-    sys.stdout.flush()
-        
 def analyze_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RATIO):
 
     fs, frames = wavfile.read(filename)
@@ -85,22 +73,6 @@ def analyze_spectrogram(filename, wsize=WINDOW_SIZE, fs=FREQ, overlap=OVERLAP_RA
     
     return time_splits
 
-def write_output(time_splits):
-    
-    base = 0
-    f = open(OUTPUT, 'w')
-    for split in time_splits:
-        delta = split - base
-        base = split
-        s = get_time_string(split) + " = "
-        if delta < TIME_THRESH:
-            s += "Commercial"
-        else:
-            s += "TV"
-        s += "\n"
-        f.write(s)
-    f.close()
-
 def generate_audio(filename):
 
     print "Generating audio.."
@@ -109,7 +81,7 @@ def generate_audio(filename):
     
 def main():
     
-#    generate_audio(sys.argv[1])
+    generate_audio(sys.argv[1])
     print "Analyzing audio"
     time_splits = analyze_spectrogram(AUDIO_FILE)  
     write_output(time_splits) 

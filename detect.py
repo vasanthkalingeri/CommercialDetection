@@ -5,6 +5,7 @@ from constants import *
 
 WHITE = np.array([255,255,255])
 BLACK = np.array([0,0,0])
+I = 0
 
 def crop(img):
     
@@ -35,6 +36,7 @@ def crop(img):
 
 def preprocess(img):
     
+    global I
     img = crop(img)
     img = cv2.cvtColor(img, cv.CV_BGR2GRAY, img)
 
@@ -42,7 +44,7 @@ def preprocess(img):
     img = blur
     clahe = cv2.createCLAHE(clipLimit=0.5, tileGridSize=(5,5))
     img = clahe.apply(img)
-    cv2.imshow('eq',img)
+#    cv2.imshow('eq',img)
     
     blur = cv2.GaussianBlur(img,(5,5),0)
     ret3,th3 = cv2.threshold(blur,0,255,cv2.THRESH_OTSU)
@@ -51,6 +53,8 @@ def preprocess(img):
     kernel = np.ones((3,3),np.uint8)
     erosion = cv2.morphologyEx(img,cv2.MORPH_OPEN, kernel,iterations = 8)
     img = erosion
+#    cv2.imwrite(SPEC_FOLDER + str(I) + "_p.png", img)
+    I += 1
     return img
     
 def analyze(img):
@@ -60,22 +64,22 @@ def analyze(img):
     positions = np.argmin(img, axis=0)  
     #Compute the height of drop/pit in the image
     distance = max(positions) - min(positions)  
-    print distance, max(positions), min(positions), sum(positions) / len(positions)
-    cv2.imshow('after thresh',img)
-    cv2.waitKey(0)
+#    cv2.imshow('after thresh',img)
+#    cv2.waitKey(0)
     if distance > THRESHOLD:
+        cv2.imwrite(SPEC_FOLDER + str(I) + "_p.png", img)
         return True
     else:
         return False
     
-def main():
-    
-    for i in range(0, 24):
-        img = cv2.imread(SPEC_FOLDER + str(i) + ".png")
-        print analyze(img)
-#        cv2.imshow('image',img)
-#        cv2.waitKey(0)
-#        
-    cv2.destroyAllWindows()
-    
-main()
+#def main():
+#    
+#    for i in range(0, 24):
+#        img = cv2.imread(SPEC_FOLDER + str(i) + ".png")
+#        print analyze(img)
+##        cv2.imshow('image',img)
+##        cv2.waitKey(0)
+##        
+#    cv2.destroyAllWindows()
+#    
+#main()
