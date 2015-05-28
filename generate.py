@@ -40,26 +40,35 @@ def read_lables(filename):
             name = line[-1].strip()
             yield [time[0], name, delta_str]
 
-def build_db(label_name, video_name):
+def build_db(label_name, video_name, aud_ext=".wav", vid_ext=".mpg"):
     
     labels = read_lables(label_name)
-    f = open(DBNAME, "a")
-    filename = len(os.listdir(DB_FOLDER)) + 1 #Number of files in the directory + 1
+    
+    filename = len(os.listdir(DB_AUDIO)) + 1 #Number of files in the directory + 1
+    if filename == 1:
+        #Creating for the first time
+        f = open(DBNAME, "w")
+        f.write("name, duration, path, verified")
+    else:
+        #Already exists
+        f = open(DBNAME, "a")
+            
     for data in labels:
         start = data[0]
         name = data[1]
         duration = data[2]
-        path = DB_FOLDER + str(filename) + ".mpg"
-        #Create a file in the db folder
-        os.system("ffmpeg -ss " + start + " -i " + video_name + " -t " + duration + " -acodec copy -vcodec copy " + path)
+        #Create a file in the db folder, audio and video are stored seperately 
+        os.system("ffmpeg -ss " + start + " -i " + video_name + " -t " + duration + " -acodec copy -vcodec copy " + DB_VIDEO + str(filename) + vid_ext)
+        os.system("ffmpeg -i " + DB_VIDEO + str(filename) + vid_ext + " -ab 160k -ac 1 -ar 44100 -vn " + DB_AUDIO + str(filename) + aud_ext)
         #Create a corresponding entry in the csv file
         s = ",".join(data[1:])
-        s = s + "," + path + ",yes\n" #Check verified to be true since human tagged
+        s = s + "," + DB_VIDEO + str(filename) + vid_ext + ",yes\n" #Check verified to be true since human tagged
         f.write(s)
         filename += 1
-            
+
 def test():
     
-    build_db("labels", "test.mpg")    
+    build_db("labels_2015-04-28_0000_US_KABC", "2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
+    build_db("labels", "test.mpg") 
 
 test()
