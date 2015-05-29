@@ -61,11 +61,18 @@ class Generate(object):
         
         self.djv.fingerprint_directory(DB_AUDIO, [aud_ext], no_proc)
         
-    def clean_db(self):
+    def clean_db(self, aud_ext=".wav", vid_ext=".mpg"):
         
         choice = raw_input("Are you sure you want to remove all commercials in the database? (yes/no)")
         if choice == "yes":
-            filename = 
+            print "Cleaning database.."
+            filename = len(os.listdir(DB_AUDIO)) + 1
+            for i in range(filename):
+                os.remove(DB_AUDIO + str(i) + aud_ext)
+                os.remove(DB_VIDEO + str(i) + vid_ext)
+                os.remove(DBNAME)
+            print "Database is empty"
+        
 
 def test():
     
