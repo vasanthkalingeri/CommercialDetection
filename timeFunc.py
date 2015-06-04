@@ -2,6 +2,12 @@ def get_time_string(tsecs):
     
     m, s = divmod(tsecs, 60)
     h, m = divmod(m, 60)
+    h = str(int(h))
+    m = str(int(m))
+    s = str(int(s))
+    h = "0"*(len(h) - 2) + h
+    s = "0"*(len(s) - 2) + s
+    m = "0"*(len(m) - 2) + m
     time_string = str(int(h)) + ":" + str(int(m)) + ":" + str(int(s))
     return time_string
 
