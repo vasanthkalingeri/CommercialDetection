@@ -5,10 +5,10 @@ def get_time_string(tsecs):
     h = str(int(h))
     m = str(int(m))
     s = str(int(s))
-    h = "0"*(len(h) - 2) + h
-    s = "0"*(len(s) - 2) + s
-    m = "0"*(len(m) - 2) + m
-    time_string = str(int(h)) + ":" + str(int(m)) + ":" + str(int(s))
+    h = "0"*(2 - len(h)) + h
+    s = "0"*(2 - len(s)) + s
+    m = "0"*(2 - len(m)) + m
+    time_string = h + ":" + m + ":" + s
     return time_string
 
 def get_seconds(tstring):
@@ -30,3 +30,5 @@ def get_delta_string(t1str, t2str):
     s2 = get_seconds(t2str)
     delta = s2 - s1
     return get_time_string(delta)
+
+print get_time_string(2)
