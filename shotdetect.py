@@ -9,6 +9,9 @@ import ffmpeg
 import cv
 from scipy.io import wavfile
 import sys
+from sklearn.ensemble import RandomForestClassifier
+import cPickle as pickle
+from sklearn import linear_model
 
 def auto_canny(image, sigma=0.33):
     
@@ -37,14 +40,17 @@ def get_color_info(img1, img2, advanced=False):
     hist2 = cv2.calcHist([gray2],[0],None,[256],[0,256])
     diff = cv2.compareHist(hist1, hist2, cv.CV_COMP_CORREL)
     
-    hsl = cv2.cvtColor(img2, cv.CV_BGR2HSV)
-    h,s,l = cv2.split(hsl)
+    hsl2 = cv2.cvtColor(img2, cv.CV_BGR2HSV)
+    h,s,l2 = cv2.split(hsl2)
+    
+    hsl1 = cv2.cvtColor(img1, cv.CV_BGR2HSV)
+    h,s,l1 = cv2.split(hsl1)
     
     #Average luminance
-    avg_lum = np.mean(l)
+    avg_lum = (np.mean(l1) + np.mean(l2)) / 2 
     
     #Uniformity of the image
-    uniformity = np.var(l)
+    uniformity = (np.var(l1) + np.mean(l2)) / 2
     
     #Initially, edge change ratio and edge stable ratio are -1
     ecr = esr = -1
@@ -54,7 +60,6 @@ def get_color_info(img1, img2, advanced=False):
         #If histogram difference is less than a threshold, then we confirm with edge information
         
         #Edge change ratio
-+
         edge1 = auto_canny(gray1) / 255
         edge2 = auto_canny(gray2) / 255
         kernel = np.ones((5,5),np.uint8)
@@ -69,29 +74,45 @@ def get_color_info(img1, img2, advanced=False):
         ecr = max(ec1, ec2) / np.prod(np.shape(edge2))
         
         #Calculating the edge stable ratio
-        esr = np.sum(np.bitwise_and(edge1, edge2)) / (np.sum(np.bitwise_or(edge1, edge2)) * 1.0)
+        esr = (np.sum(np.bitwise_and(edge1, edge2)) + 1) / (np.sum(np.bitwise_or(edge1, edge2) + 1) * 1.0)
         
     if advanced is False:
         return [diff, avg_lum, uniformity, ecr, esr]
-        
-def extract_video_features(video_name, filename):
+
+def extract_video_features(video_name, filename, clf=None, labels_file="", train=False):
     
     cap = cv2.VideoCapture(video_name)
     present1, img1 = cap.read()
     y = []
     x = []
-    i = 0    
     f = open(filename, 'w')
+    
+    #Location of splits for that video file, which would be ideally loaded from labels file
+    times = ['9:37', '9:52', '10:06', '10:37', '10:39', '11:08', '11:16', '13:20', '13:48', '14:04', '14:33', '15:05', '15:18']
+    
+    times = [timeFunc.get_time_string(timeFunc.get_seconds(i) - (9*60)) for i in times]
+    i = 0
+    X = np.array([])
+    y = np.array([])
+    
     while present1:
+    
         present2, img2 = cap.read()
+        time_now = timeFunc.get_time_string(i / 60)
         if present2:
             #If the images can be read
             features = get_color_info(img1, img2)
             if features[-1] != -1:
                 #We might have to check for boundaries
-                features = [str(j) for j in features]
-                string = ",".join(features) + "\n"
-                f.write(string)
+                if train is True:
+                    X = np.append(X, features)
+                    label = 0
+                    if time_now in times:
+                        label = 1
+                    y = np.append(y, label)
+                elif clf.predict(features) == 1:
+                    print "WOHOOO!!", timeFunc.get_time_string(i / 60)
+                    f.write(timeFunc.get_time_string(i / 60) + "\n")
             i += 1
         else:
             #EOF
@@ -109,13 +130,24 @@ def extract_video_features(video_name, filename):
         
     cv2.destroyAllWindows()
     f.close()
+    clf = None
+    pickle.dump([X, y], open('data', 'wb'))
+    if train is True:
+        X = np.resize(X, (y.shape[0], len(features)))
+        clf = linear_model.LogisticRegression() #RandomForestClassifier(n_estimators=10, bootstrap=False, n_jobs=-1)
+        clf.fit(X, y)
+    return clf
 
-#def extract_audio_features(video_name, filename):
+def train_data():
     
-    
-                
+    clf = extract_video_features("shot_det.mpg", "shots.csv", train=True)
+    pickle.dump(clf, open("class.data", 'wb'))
+            
 def test():  
-      
-    extract_video_features("shot_det.mpg", "vid_features.csv")
+    
+    clf = pickle.load(open("class.data"))  
+    clf = extract_video_features("shottest.mpg", "shots.csv", clf=clf)
+    
+#    train_data()
 
 test()
