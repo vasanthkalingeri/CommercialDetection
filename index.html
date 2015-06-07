@@ -1,103 +1,147 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Commercial Detection : Google Summer of Code 2015, Red Hen Labs">
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Commercial Detection</title>
+    <meta charset="UTF-8">
+    <title>Commercial Detection by vasanthkalingeri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
+    <section class="page-header">
+      <h1 class="project-name">Commercial Detection</h1>
+      <h2 class="project-tagline">Google Summer of Code 2015, Red Hen Labs</h2>
+      <a href="https://github.com/vasanthkalingeri/CommercialDetection" class="btn">View on GitHub</a>
+      <a href="https://github.com/vasanthkalingeri/CommercialDetection/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/vasanthkalingeri/CommercialDetection/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/vasanthkalingeri/CommercialDetection">View on GitHub</a>
+    <section class="main-content">
+      <h1>
+<a id="building-an-automated-commercial-detection-system" class="anchor" href="#building-an-automated-commercial-detection-system" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building an automated commercial detection system</h1>
 
-          <h1 id="project_title">Commercial Detection</h1>
-          <h2 id="project_tagline">Google Summer of Code 2015, Red Hen Labs</h2>
+<p>Think about this situation, your watching a really enthralling movie that you have recorded on your TV. You are engrossed into the movie and as it proceeds, the stage is set for the plot to unfold, you are on your toes, eagerly waiting to see how it culminates and snap! its a commercial break!. I am sure all of you have been in this situation, if you haven't, let me tell you, its one of the most annoying things about television. But wait, what if we could eliminate this problem completely ? What if there was a system that could completely remove all the ads you hate for you? This is precisely the system that Red Hen Labs plans on having, an automated and robust commercial detection system, one that is generic for all TV, regardless of the language or the genre of the TV show. I am really grateful that I have been given an opportunity to build such a system under the guidance of Carlos Fernández Sanz and Weixin Li as a part of Google Summer of Code, 2015.  </p>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/vasanthkalingeri/CommercialDetection/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/vasanthkalingeri/CommercialDetection/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>
-<a id="commercial-detection" class="anchor" href="#commercial-detection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Commercial Detection</h1>
-
-<p>The project allows automatic detection and identification of commercials in a TV stream. With information like this, you have the freedom to skip all commercials, or watch only those you enjoy. It results in huge amount of space reduction in recorded TV videos, if we opt to delete all commercials in the video.</p>
-
-<p>There may be times when the program will not identify the commercials correctly, in such a case there is an interface set up where the user may tag the correct output. The system then learns from what the user tagged and improves so that it does not make such mistakes again.</p>
+<p>This blog is formally meant as a general report of progress for my project, but I plan on making it a tutorial to both easily use this system and to develop your own from scratch. If you ever wanted to do some fun singal processing, image processing and machine learning all at the same time, this would be a great project to get your hands on.  </p>
 
 <h1>
-<a id="dependencies" class="anchor" href="#dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies</h1>
+<a id="using-the-system" class="anchor" href="#using-the-system" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the system</h1>
 
-<p>There is a shell script called dependencies.sh, which installs the required dependencies.</p>
+<p>Currently, the instructions are for Debian based Linux systems. 
+Install the dependencies by running the script dependencies.sh and download the MySQL db. Then run this: </p>
+
+<pre><code>python main.py &lt;path-to-tv-recording&gt;
+</code></pre>
+
+<p>This will create a file called output.txt, that contains the location of all the commercials. The output will be like this: </p>
+
+<pre><code>00:00:00 - 00:09:38 = TV
+00:09:38 - 00:09:52 = Commercial by Pepsi
+00:09:52 - 00:10:05 = Commercial by Nike
+....
+.
+</code></pre>
+
+<p>Do you just enjoy watching Nike ads ? Great, then just delete these lines from output.txt, you do not want any ads ? The just keep the file as is. In the end run the following code:</p>
+
+<h3>
+<a id="this-part-is-still-under-development" class="anchor" href="#this-part-is-still-under-development" aria-hidden="true"><span class="octicon octicon-link"></span></a>This part is still under development</h3>
+
+<pre><code>python remove_ads.py &lt;output.txt&gt; &lt;path-to-tv-recording&gt; &lt;new-name-of-video&gt;
+</code></pre>
+
+<p>This is it, you have your recorded TV, with only your favorite commercials in them, you can go watch your TV show then.</p>
 
 <h1>
-<a id="instructions-to-run" class="anchor" href="#instructions-to-run" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instructions to run</h1>
+<a id="building-one-from-scratch" class="anchor" href="#building-one-from-scratch" aria-hidden="true"><span class="octicon octicon-link"></span></a>Building one from scratch</h1>
 
-<p>python main.py |path-to-video|</p>
-
-<h1>
-<a id="note" class="anchor" href="#note" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note</h1>
-
-<p>The project is still under development so some of the features are still unavailable as of now. </p>
-
-<h1>
-<a id="current-work" class="anchor" href="#current-work" aria-hidden="true"><span class="octicon octicon-link"></span></a>Current work</h1>
+<p>This part of the blog will be edited, until the end of the project, so if you are seeing it, any time before September 2015, know that, its not the final version of the blog.</p>
 
 <h2>
-<a id="concepts" class="anchor" href="#concepts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Concepts</h2>
+<a id="how-humans-detect-commercials" class="anchor" href="#how-humans-detect-commercials" aria-hidden="true"><span class="octicon octicon-link"></span></a>How humans detect commercials</h2>
 
-<p>The initial part of the project would be to clearly distinguish between commercials and TV. A naive way to look at it would be to detect a scene change in the video, i.e to search for blank screens. There is however a problem with blank screens, some TV channels have their logo on all the time, so the screen is never totally blank even during a shift from TV to commercial, sometimes there are blank screens, when there is a change of scene in the TV as well. Thus a video based approach would be futile.</p>
+<p>The most naive way of building any automated system would be to first think of how a human does it, then try mimicking that. So, how do you differentiate between a commercial and TV? Its amazing how, once you start to think this way, even the most trivial tasks such as this one, appear so convoluted. Its seemingly too easy for us as humans to detect commercials under normal situations, but its a really hard thing for a computer to do, so to even out the scales a little, lets put a human in a different situation, one where this task won't appear quite so trivial and then mimic the path the human took to learn, under such a situation. </p>
 
-<p>For now the audio based approach seems to be good in dividing the video into blocks. The audio always fades out, drops to a zero and then the next block of commercial or TV starts, we can see this clearly in the two pits formed in the spectrographs generated by the code. A spectrograph is just a plot of the variation of amplitude with time and frequency. The red regions indicate high values of amplitude, yellow regions relatively lower and so on. We see that the amplitude for all frequencies is very low in the gap between a transition from one block of the video to the other, this is the concept used in designing an algorithm to segment the video into blocks. </p>
+<p>Let us think of this hypothetical situation, imagine all your memory about TV shows, movies, advertisements, everything was magically wiped out. Now you switch on the TV, you tune in to a channel which has a language you don't know. So your basically destitute of any means of recognizing commercials based on previous memory or by understanding the language. The TV is turned on right in the middle of an ongoing TV show / ad, so you don't have any clue about which part you are in. You continue watching and you realize in a really short time, whether your in a middle of a TV or an ad. You form this conclusion, based on how the scenes changed, on how people talk, from the tone of the background music and other such things, you just know its TV or ad, even though you have a hard time explaining to people, how you figured that out (this is the convoluted part I was talking about).  </p>
 
-<h2>
-<a id="progress" class="anchor" href="#progress" aria-hidden="true"><span class="octicon octicon-link"></span></a>Progress</h2>
-
-<p>Currently the code gives us the following functionality:</p>
-
-<ul>
-<li>Obtain the audio part from the video.</li>
-<li>Obtain the spectrograph of the audio.</li>
-<li>Finding location of pits (Currently finding all pits, should make it find deep pits alone)</li>
-</ul>
+<p>Now you can differentiate between that particular TV show and ads, and you watched TV for less than 10 minutes, staggering progress! Our task is not yet done though, you have to detect the ads, that is, see what they are trying to advertise. Remember, you can't read anything on the screen, because you don't know the language. So just how do you know what product they are advertising then ? Its not possible, so you need the help of a person who knows the language here, or someone who can identify the company logo for you, then you enter a report telling when the ad occurred and what it was advertising. This is how you learned to detect commercials. With time, you will learn these logos yourself or may be even the pattern of text in the language and be able to detect new commercials of the same company, provided they don't change their logo. One of the good things is, once you have seen a commercial and you remember it, you can detect its occurrence quickly in just a matter of seconds. Hence, even being placed under this hypothetical situation, your brain has become a commercial detector. Now that you have a glimpse of how the human brain works, lets proceed to the more exciting part of mimicking it.  </p>
 
 <h2>
-<a id="future-plan" class="anchor" href="#future-plan" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future plan</h2>
+<a id="mimicking-humans-official-report" class="anchor" href="#mimicking-humans-official-report" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mimicking humans (Official report)</h2>
 
-<p>The following would be the short term path that this project will take:</p>
+<p>The only resource at my disposal was access to HD videos of TV recordings, my task was to build a commercial detection system from this. My first thought was, a human divides the video in to blocks, based on how different the blocks are and then designates whether that block was a commercial or not. Even though this exact process of how the mind divides it into blocks and later classifies them was rather obscure, I went ahead to implement it. After spending a lot of hours and coming up with a not so robust system to do this, I discussed it with Carlos, who made me realize that I should be looking at teaching the system(building a supervised learning algorithm) rather making it completely learn by itself.</p>
 
-<ul>
-<li>Take duration of each block to be a feature and implement a classifier which can take in any number of such features and classify whether its a commercial or TV.</li>
-<li>Test rigorously whether it works 100% of the time.</li>
-<li>Delve deeper into CCExtractor to see if anything would be helpful as features.</li>
-<li>Design a classifier to identify ads using audio fingerprinting method.</li>
-<li>Check whether pitch, ZCD and energy of the audio will prove to be good features.</li>
-</ul>
-      </section>
-    </div>
+<p>Now I had to teach the computer, to differentiate between a commercial and TV and also detect the commercial if possible, how could I teach something I don't know myself? So, I went through one of the recorded videos and made a report, this report looked like the output file that should be generated by the system. This is what is called my training data. Using ffmpeg, these regions of commercials were copied out from the video and stored separately in a folder. A csv file was made, which contained the path to these hand picked commercials and the name and duration of each of them. It also had a field verified(will come to this later), the csv file just acted as a user friendly database.</p>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Commercial Detection maintained by <a href="https://github.com/vasanthkalingeri">vasanthkalingeri</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+<p>Let us come back to the brain analogy, if the brain under that hypothetical situation I described earlier had seen these commercials, we know that it would surely identify any occurrence of the same in any video, in seconds. This was the first thing I had to teach the computer to do, a 100% recognition of seen commercials. The words 100% and recognition when put together are really intimidating for any one with some background in machine learning. But if you look more closely, every commercial has some audio, we had to find a method to find a 100% match of the same signal in other videos. Mattia Cerrato, a student developer at the time, at Red Hen Labs, suggested that audio fingerprinting would be just the thing to achieve this.</p>
+
+<p>If you want to read more about audio fingerprinting, you should really visit <a href="http://willdrevo.com/fingerprinting-and-audio-recognition-with-python/">Will Drevo's blog</a> , its one of the best explanation on the topic I could find on the web. He explains the working of his open source project Dejavu, which does audio fingerprinting, in that blog. I integrated Dejavu as a part of the system, so now I could achieve an accuracy of 100% detection of already seen commercials. </p>
+
+<h3>
+<a id="implementing-audio-fingerprinting-using-dejavu" class="anchor" href="#implementing-audio-fingerprinting-using-dejavu" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementing audio fingerprinting using Dejavu</h3>
+
+<p>We obtain the audio of the entire video using ffmpeg.
+The pseudo code for the matching process is follows:
+    //Initially, building the fingerprint database
+    for item in database:
+         build fingerprint for item and store this fingerprint in a Mysql db(done by Dejavu)</p>
+
+<pre><code>//Recognizing commercials in the given video
+start = 0
+end = end time of video
+audio = audio of the video
+fingerprint_length = 5 seconds // 5 seconds was apt to get really good fingerprints, more stats are in Dejavu docs
+skip_length = (Duration of the shortest commercial in db) - (fingerprint_length) 
+while start &lt; end:
+       //Obtain start to start + 5 seconds of audio and fingerprint it
+       if there is a match for the fingerprint:
+             //Obtain the offset of the fingerprint, done by Dejavu
+             com_start = start - offset
+             com_end = start + duration // duration obtained from the handpicked database
+             //Write com_start and com_end into the output file, along with name of the commercial
+             start = start - offset + duration // Skip directly to end of detected commercial and continue scanning
+       else: 
+             start = start + skip_length
+</code></pre>
+
+<p>Thus, after doing these steps, we obtain a system that can recognize seen commercials like a human. But this means we have to teach it every commercial on the planet to make it robust, and keep teaching it too, this is not feasible by any means, so we will proceed to make it automated.</p>
+
+<h2>
+<a id="automating-the-process" class="anchor" href="#automating-the-process" aria-hidden="true"><span class="octicon octicon-link"></span></a>Automating the process</h2>
+
+<h1>
+<a id="currently-the-system-is-developed-only-till-here" class="anchor" href="#currently-the-system-is-developed-only-till-here" aria-hidden="true"><span class="octicon octicon-link"></span></a>Currently the system is developed only till here</h1>
+
+<h1>
+<a id="references" class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
+
+<p>*Real time commercial detection using MPEG features - <a href="http://www.researchgate.net/profile/Nevenka_Dimitrova/publication/229024227_Real_time_commercial_detection_using_MPEG_features/links/00b7d52b9b0879c1bc000000.pdf">http://www.researchgate.net/profile/Nevenka_Dimitrova/publication/229024227_Real_time_commercial_detection_using_MPEG_features/links/00b7d52b9b0879c1bc000000.pdf</a>
+*Automatic detection of TV commercials - <a href="http://www.researchgate.net/profile/Oge_Marques/publication/3227702_Automatic_detection_of_TV_commercials/links/0c96051e533d12d515000000.pdf">http://www.researchgate.net/profile/Oge_Marques/publication/3227702_Automatic_detection_of_TV_commercials/links/0c96051e533d12d515000000.pdf</a>
+*A high-performance shot boundary detection algorithm using multiple cues
+*Story Segmentation and Detection of Commercials
+In Broadcast News Video - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.46.6845&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.46.6845&amp;rep=rep1&amp;type=pdf</a>
+*CONSTRUCTION AND EVALUATION OF A ROBUST MULTIFEATURE SPEECH/MUSIC
+DISCRIMINATOR - <a href="http://www.ee.columbia.edu/%7Edpwe/papers/ScheiS97-mussp.pdf">http://www.ee.columbia.edu/~dpwe/papers/ScheiS97-mussp.pdf</a>
+*On the detection and recognition of television commercials - <a href="https://ub-madoc.bib.uni-mannheim.de/800/1/TR-96-016.pdf">https://ub-madoc.bib.uni-mannheim.de/800/1/TR-96-016.pdf</a>
+*Time constraint boost for TV commercial detection - <a href="http://research.microsoft.com/en-us/um/people/taoqin/papers/qin-icip04.pdf">http://research.microsoft.com/en-us/um/people/taoqin/papers/qin-icip04.pdf</a>
+*A confidence based recognition system for TV commercials - <a href="http://crpit.com/confpapers/CRPITV75Li.pdf">http://crpit.com/confpapers/CRPITV75Li.pdf</a>
+*Comparision and combination of two novel Commercial detection methods - <a href="http://www.cs.cmu.edu/%7Emychen/publication/duygulu_ICME04.pdf">http://www.cs.cmu.edu/~mychen/publication/duygulu_ICME04.pdf</a>
+*A psuedo statistical approach to commercial detection - <a href="http://lyle.smu.edu/%7Eprangara/Report_Commercial_Boundary_Detection.pdf">http://lyle.smu.edu/~prangara/Report_Commercial_Boundary_Detection.pdf</a>
+*Real time commercial detection in video - <a href="http://www.cse.msu.edu/%7Efengzhey/downloads/projects/before2015/Comcast-2013.pdf">http://www.cse.msu.edu/~fengzhey/downloads/projects/before2015/Comcast-2013.pdf</a>
+*Detection of commercials using sift - <a href="http://www.ijetae.com/files/Volume4Issue6/IJETAE_0614_82.pdf">http://www.ijetae.com/files/Volume4Issue6/IJETAE_0614_82.pdf</a>
+*Robust learning based TV commercial detection - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.72.9758&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.72.9758&amp;rep=rep1&amp;type=pdf</a>         </p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/vasanthkalingeri/CommercialDetection">Commercial Detection</a> is maintained by <a href="https://github.com/vasanthkalingeri">vasanthkalingeri</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
 
-              <script type="text/javascript">
+    </section>
+
+            <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
@@ -108,6 +152,6 @@
             } catch(err) {}
           </script>
 
-
   </body>
 </html>
+
