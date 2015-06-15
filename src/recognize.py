@@ -1,32 +1,31 @@
-from dejavu.recognize import FileRecognizer
+from dejavu.recognize import FileRecognizer, DataRecognizer
 import os
 import subprocess
 import timeFunc
 from constants import *
 import ffmpeg
-from dejavu import Dejavu
+from dejavu import Dejavu, decoder
+import numpy as np
+from audiodetect import DetectSilence
 
 class Recognize(object):
     
+    """
+        This class runs the audio fingerprinting algorithm to find matches of commercials in the audio.
+        First detects regions of silence and does match finding only around the regions of silence.
+        
+    """
     def __init__(self, video_name):
         
         self.video_name = video_name
         self.djv = Dejavu(CONFIG)
-
-    def get_vid_length(self):
         
-        filename = self.video_name
-        result = subprocess.Popen(["ffprobe", filename],
-        stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-        l = [x for x in result.stdout.readlines() if "Duration" in x]
+        #We create the audio of the video given to us
+#        ffmpeg.create_audio(self.video_name, TEMP_AUDIO)
+        self.frames, self.Fs, hash_val = decoder.read(TEMP_AUDIO)
+        self.frames = self.frames[0] #Since we always create single channel audio
+        self.duration = int(self.frames.shape[0] / (self.Fs*1.0)) #Duration of the entire video in seconds
         
-        #Some clipping to obtain the time string, this is specific to the version of ffmpeg/ffprobe
-        l = l[0].split(",")
-        time = l[0]
-        time = time.split(" ")[-1]
-        time = time.split('.')[0] #Remove milliseconds
-        return time
-
     def get_line(self, filename, index):
         
         f = open(filename)
@@ -37,36 +36,32 @@ class Recognize(object):
             i += 1
         return -1
 
-    def clean(self):
-        
-        #removes the temp files that were created
-        os.remove(TEMP_AUDIO)
-        os.remove(TEMP_VIDEO)
-            
-    def recognize_audio(self, start):
+    def find_commercial(self, start, span=VIDEO_SPAN):
         
         print timeFunc.get_time_string(start), "COMPLETE"
-        song = self.djv.recognize(FileRecognizer, TEMP_AUDIO)
-        self.clean()
+        data = np.copy(self.frames[start*self.Fs:(start+span)*self.Fs])
+        print (start+span)
+        song = self.djv.recognize(DataRecognizer, [data])
         if song is None:
-            return VIDEO_GAP
+            return [VIDEO_GAP, False]
         if song[DJV_CONFIDENCE] >= CONFIDENCE_THRESH:
             #obtain the start of the commercial
             start -= song[DJV_OFFSET]
             start = int(start)
             
             #Read the database to obtain the end time of the commercial
-            index = int(song[DJV_SONG_NAME]) - 1 #This is the line containing the db details
+            index = int(song[DJV_SONG_NAME]) #This is the line containing the db details
             line = self.get_line(DBNAME, index)
             line = line.split(",")
-            print line
             name = line[0]
             duration = line[1]
             duration = timeFunc.get_seconds(duration)
-            print duration
+            
+            if duration < song[DJV_OFFSET] or song[DJV_OFFSET] < 0:
+                #Offset can never be greater than duration of detected commercial
+                return [VIDEO_GAP, False]
+            
             verified = line[-1]
-            print type(start)
-            print type(duration)
             end = start + duration
                 
             f = open(OUTPUT, "a")
@@ -78,25 +73,34 @@ class Recognize(object):
             s += "\n"
             f.write(s)
             f.close()
-            return (duration + 1)
+            return [(start + duration), True]
         else:
-            return VIDEO_GAP
+            return [VIDEO_GAP, False]
             
     def recognize(self):
         
         #Generates temp.mpg which is the temp video file and temp.wav, its corresponding audio file
         
-        duration = self.get_vid_length()
-        duration = timeFunc.get_seconds(duration)
-        base = 0
-        while base < duration:
-            ffmpeg.create_video(timeFunc.get_time_string(base), timeFunc.get_time_string(VIDEO_SPAN), self.video_name, TEMP_VIDEO)
-            ffmpeg.create_audio(TEMP_VIDEO, TEMP_AUDIO)
-            base += self.recognize_audio(base)
-    
+#        times = DetectSilence(TEMP_AUDIO).get_times()
+#        print times
+        times = ['00:00:49', '00:01:19', '00:01:54', '00:02:25', '00:02:38', '00:02:41', '00:03:03', '00:03:13', '00:03:21'] #For shottest.mpg
+        times = [timeFunc.get_seconds(i) for i in times]
+        i = 0
+        while i < len(times):
+            start = times[i]
+            end, res = self.find_commercial(start)
+            i += 1
+            #If its an ad, we skip through to the point where the ad ends
+#            while (res is True) and (end > times[i]):
+#                i += 1
+                
+#    def __del__(self):
+#        
+#        os.remove(TEMP_AUDIO)
+                
 def test():
     
-    recog = Recognize("../data/shot_det.mpg")
+    recog = Recognize("../data/shottest.mpg")
     recog.recognize()
 
 test()
