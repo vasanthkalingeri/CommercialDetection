@@ -40,11 +40,17 @@ class Recognize(object):
         
         print timeFunc.get_time_string(start), "COMPLETE"
         data = np.copy(self.frames[start*self.Fs:(start+span)*self.Fs])
-        print (start+span)
+        print timeFunc.get_time_string(start+span)
         song = self.djv.recognize(DataRecognizer, [data])
         if song is None:
-            return [VIDEO_GAP, False]
+            return [start + VIDEO_SPAN, False]
+        print song
         if song[DJV_CONFIDENCE] >= CONFIDENCE_THRESH:
+
+            if song[DJV_OFFSET] < 0:
+                #Offset can never be greater than duration of detected commercial
+                return [start+VIDEO_SPAN, False]
+                            
             #obtain the start of the commercial
             start -= song[DJV_OFFSET]
             start = int(start)
@@ -57,42 +63,42 @@ class Recognize(object):
             duration = line[1]
             duration = timeFunc.get_seconds(duration)
             
-            if duration < song[DJV_OFFSET] or song[DJV_OFFSET] < 0:
-                #Offset can never be greater than duration of detected commercial
-                return [VIDEO_GAP, False]
+            if duration < song[DJV_OFFSET]:
+                #The offset where it is found cannot exceed the duration of the song
+                return [start+VIDEO_SPAN, False]
             
             verified = line[-1]
             end = start + duration
                 
             f = open(OUTPUT, "a")
             s = timeFunc.get_time_string(start) + " - " + timeFunc.get_time_string(end) + " = " + name 
-            if verified == DB_UNCLASSIFIED: #Has not been verified in the database
-                s += " " + DB_UNCLASSIFIED
-            else:
-                s += " " + DB_CLASSIFIED
+#            if verified == DB_UNCLASSIFIED: #Has not been verified in the database
+#                s += " " + DB_UNCLASSIFIED
+#            else:
+#                s += " " + DB_CLASSIFIED
             s += "\n"
             f.write(s)
             f.close()
-            return [(start + duration), True]
+            return [end, True]
         else:
-            return [VIDEO_GAP, False]
+            return [start+VIDEO_SPAN, False]
             
     def recognize(self):
         
         #Generates temp.mpg which is the temp video file and temp.wav, its corresponding audio file
         
-#        times = DetectSilence(TEMP_AUDIO).get_times()
-#        print times
-        times = ['00:00:49', '00:01:19', '00:01:54', '00:02:25', '00:02:38', '00:02:41', '00:03:03', '00:03:13', '00:03:21'] #For shottest.mpg
+        times = DetectSilence(TEMP_AUDIO).get_times()
+        print times
+#        times = ['00:00:19', '00:00:20', '00:00:21', '00:00:22', '00:00:23', '00:00:24', '00:00:25', '00:00:26', '00:00:27', '00:00:28', '00:00:29', '00:00:30', '00:00:31', '00:00:32', '00:00:33', '00:00:34', '00:00:35', '00:00:36', '00:00:37', '00:00:38', '00:00:39', '00:00:40', '00:00:41', '00:00:42', '00:00:43', '00:00:44', '00:00:45', '00:00:46', '00:00:47', '00:00:48', '00:00:49', '00:01:19', '00:01:49', '00:01:50', '00:01:51', '00:01:52', '00:01:53', '00:01:54', '00:02:24', '00:02:25', '00:02:38', '00:02:41', '00:03:03', '00:03:13', '00:03:21']#For shottest.mpg
         times = [timeFunc.get_seconds(i) for i in times]
         i = 0
-        while i < len(times):
-            start = times[i]
-            end, res = self.find_commercial(start)
+        end = 0
+        while i < len(times) - 1:
+            if end < times[i]:
+                div = (times[i] + times[i + 1]) / 2
+                end, res = self.find_commercial(div)
             i += 1
-            #If its an ad, we skip through to the point where the ad ends
-#            while (res is True) and (end > times[i]):
-#                i += 1
+            
                 
 #    def __del__(self):
 #        
