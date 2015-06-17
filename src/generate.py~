@@ -4,37 +4,27 @@ from dejavu import Dejavu
 from dejavu.recognize import FileRecognizer
 import timeFunc
 import ffmpeg
+from fileHandler import LabelsFile
 
 class Generate(object):
 
-    def __init__(self, labels, video_name):
+    def __init__(self, labels_fname, video_name):
     
-        self.label_name = labels
+        self.labels = LabelsFile(labels_fname)
         self.video_name = video_name
         self.djv = Dejavu(CONFIG)
     
-    def read_lables(self):
-        
-        with open(self.label_name) as fd:
-            for line in fd:
-                line = line.split("=")
-                line = [i.strip() for i in line]
-                time = line[0].split("-")
-                time = [i.strip(" ") for i in time]
-                delta_str = timeFunc.get_delta_string(time[0], time[1])
-                name = line[-1].strip()
-                yield [time[0], name, delta_str]
-
     def build_db(self, aud_ext=".wav", vid_ext=".mpg"):
         
-        labels = self.read_lables()
+        labels = self.labels.read_lables()
         
         filename = len(os.listdir(DB_AUDIO)) + 1 #Number of files in the directory + 1
+        
         if filename == 1:
         
             #Creating for the first time
             f = open(DBNAME, "w")
-            f.write("name, duration, path, verified")
+            f.write("name, duration, path, classified\n")
         
         else:
         
@@ -45,7 +35,8 @@ class Generate(object):
         
             start = data[0]
             name = data[1]
-            duration = data[2]
+            end = data[2]
+            duration = timeFunc.get_delta_string(start, end)
             
             #Create a file in the db folder, audio and video are stored seperately 
             ffmpeg.create_video(start, duration, self.video_name, DB_VIDEO + str(filename) + vid_ext)

@@ -7,11 +7,9 @@ from matplotlib import pyplot as plt
 import pylab
 import ffmpeg
 import cv
-from scipy.io import wavfile
 import sys
-from sklearn.ensemble import RandomForestClassifier
 import cPickle as pickle
-from sklearn import linear_model
+from sklearn.covariance import EllipticEnvelope
 
 def auto_canny(image, sigma=0.33):
     
@@ -93,10 +91,10 @@ def extract_video_features(video_name, filename, clf=None, labels_file="", train
     times = [timeFunc.get_time_string(timeFunc.get_seconds(i) - (9*60)) for i in times]
     i = 0
     X = np.array([])
-    y = np.array([])
-    
+#    y = np.array([])
+    m = 0
     while present1:
-    
+        
         present2, img2 = cap.read()
         time_now = timeFunc.get_time_string(i / 60)
         if present2:
@@ -104,13 +102,16 @@ def extract_video_features(video_name, filename, clf=None, labels_file="", train
             features = get_color_info(img1, img2)
             if features[-1] != -1:
                 #We might have to check for boundaries
+                print clf.predict(np.array(features))
                 if train is True:
-                    X = np.append(X, features)
+#                    X = np.append(X, features)
                     label = 0
                     if time_now in times:
+                        X = np.append(X, features)
+                        m += 1
                         label = 1
-                    y = np.append(y, label)
-                elif clf.predict(features) == 1:
+#                    y = np.append(y, label)
+                elif clf.predict(np.array(features)) == 1:
                     print "WOHOOO!!", timeFunc.get_time_string(i / 60)
                     f.write(timeFunc.get_time_string(i / 60) + "\n")
             i += 1
@@ -131,11 +132,14 @@ def extract_video_features(video_name, filename, clf=None, labels_file="", train
     cv2.destroyAllWindows()
     f.close()
     clf = None
-    pickle.dump([X, y], open('data', 'wb'))
+#    pickle.dump([X, y], open('data', 'wb'))
+#    [X, y] = pickle.load(open('data'))
+    features = [1]*5
     if train is True:
         X = np.resize(X, (y.shape[0], len(features)))
-        clf = linear_model.LogisticRegression() #RandomForestClassifier(n_estimators=10, bootstrap=False, n_jobs=-1)
-        clf.fit(X, y)
+        clf = EllipticEnvelope()
+        clf = clf.fit(X)
+        clf = clf.decision_function(X)
     return clf
 
 def train_data():

@@ -122,10 +122,10 @@ class Recognize(object):
         
         os.remove(TEMP_AUDIO)
                 
-def test():
-    
-    recog = Recognize("../data/shottest.mpg")
-    recog.recognize()
+#def test():
+#    
+#    recog = Recognize("../data/shottest.mpg")
+#    recog.recognize()
 
-test()
+#test()
 

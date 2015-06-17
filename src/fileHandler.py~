@@ -22,6 +22,8 @@ class LabelsFile(object):
                 time = line[0].split("-")
                 time = [i.strip(" ") for i in time]
                 name = line[-1].strip()
+                if name == UNCLASSIFIED_CONTENT:
+                    continue
                 yield [time[0], time[1], name]
     
     def write_labels(self, content):

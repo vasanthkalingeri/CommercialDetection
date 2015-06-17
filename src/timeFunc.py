@@ -23,7 +23,7 @@ def get_seconds(tstring):
     return secs
 
 def get_delta_string(t1str, t2str):
-    
+    """Finds s2 - s1 """
     t1str = t1str.strip(" ")
     t2str = t2str.strip(" ")
     s1 = get_seconds(t1str)
@@ -31,4 +31,3 @@ def get_delta_string(t1str, t2str):
     delta = s2 - s1
     return get_time_string(delta)
 
-print get_time_string(2)

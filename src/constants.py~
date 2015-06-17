@@ -31,7 +31,6 @@ OVERLAP = 0#0-1 ratio
 
 #For recognize.py
 OUTPUT = "output.txt"
-SILENCE = "silence"
 
 #in seconds
 VIDEO_SPAN = 5 #How much to take to analyze audio
