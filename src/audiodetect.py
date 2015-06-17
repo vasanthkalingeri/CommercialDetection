@@ -28,7 +28,7 @@ class DetectSilence(object):
         self.Fs, frames = wavfile.read(self.audio_name)
         start = 0
         i = window
-        m = int(len(frames) / (window * self.Fs) - 1) # As (k + 1)*window*fs < len(frames)
+        m = int(len(frames) / (window * self.Fs)) # As (k + 1)*window*fs < len(frames)
         
         #Creating an empty X matrix
         n = np.fft.fftfreq(int(self.Fs*window))[: self.Fs // 2].shape[0] #Only real part

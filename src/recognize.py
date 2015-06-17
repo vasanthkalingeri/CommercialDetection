@@ -1,6 +1,5 @@
 from dejavu.recognize import FileRecognizer, DataRecognizer
 import os
-import subprocess
 import timeFunc
 from constants import *
 import ffmpeg

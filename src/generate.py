@@ -34,8 +34,9 @@ class Generate(object):
         for data in labels:
         
             start = data[0]
-            name = data[1]
-            end = data[2]
+            end = data[1]
+            name = data[2]
+            
             duration = timeFunc.get_delta_string(start, end)
             
             #Create a file in the db folder, audio and video are stored seperately 

@@ -22,7 +22,7 @@ class LabelsFile(object):
                 time = line[0].split("-")
                 time = [i.strip(" ") for i in time]
                 name = line[-1].strip()
-                if name == UNCLASSIFIED_CONTENT:
+                if name == UNCLASSIFIED_CONTENT or name == SILENCE:
                     continue
                 yield [time[0], time[1], name]
     
