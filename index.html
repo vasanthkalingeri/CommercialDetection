@@ -35,7 +35,7 @@
 
 <p>This is precisely the system that Red Hen Labs plans on having, an automated and robust commercial detection system, one that is generic for all TV, regardless of the language or the genre of the TV show. I am really grateful that I have been given an opportunity to build such a system under the guidance of Carlos Fernández Sanz and Weixin Li as a part of Google Summer of Code, 2015.  </p>
 
-<p>This blog is meant as a general report of progress for my project, but I plan on making it a tutorial to both easily use this system and to develop your own from scratch. If you ever wanted to do some fun singal processing, image processing and machine learning all at the same time, this would be a great project to get your hands on.  </p>
+<p>This blog is meant as a general report of progress for my project, but I plan on making it a tutorial to both easily use this system and to develop your own from scratch. If you ever wanted to do some fun signal processing, image processing and machine learning all at the same time, this would be a great project to get your hands on.  </p>
 
 <h1>
 <a id="using-the-system" class="anchor" href="#using-the-system" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the system</h1>
@@ -121,40 +121,101 @@ while start &lt; end:
 <p>Thus, after doing these steps, we obtain a system that can recognize seen commercials like a human. But this means we have to teach it every commercial on the planet to make it robust, and keep teaching it too, this is not feasible by any means, so we will proceed to make it automated.</p>
 
 <h2>
-<a id="automating-the-process" class="anchor" href="#automating-the-process" aria-hidden="true"><span class="octicon octicon-link"></span></a>Automating the process</h2>
+<a id="finding-scene-changes" class="anchor" href="#finding-scene-changes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Finding scene changes</h2>
+
+<p>Things start to become a little technical from here, so please do bear with me. While the above approach is fast, it is a heuristic so it may not always work since the start point may not be detected correctly. To fix this problem, we should delve deeper into how a video to be broadcast on TV is created.</p>
+
+<p>A TV broadcast is basically just a series of videos merged together into one unit. Many advertisements and many blocks of the same TV show are combined in the desired order to obtain a broadcast. Lets call the points where two videos are combined a scene change. If we detect these scene changes and run our algorithm only near those points of scene change, we can obtain a gain in efficiency and accuracy too. If we are good with our scene change detection we make the entire system completely robust.</p>
+
+<p>On careful inspection, to make a good scene change, the videos have to be stitched together until there is no blank frame between the two videos, this way humans cannot detect scene changes and the transition will be smooth. From the laws of physics we know the light travels faster than sound, so during a video stitching, if there was no silence between the audio content of the combining videos, you would be seeing a little of the second video while hearing the last part of the first video, this would make the transition atrocious, for this reason they always leave a gap of silence at the scene change point.</p>
+
+<p>Let us use this point of silence to detect scene changes. We can extract the audio for the video, using ffmpeg as stated before. If we were to naively find points in this audio where sound level is zero, we would fail since there would be many such points and most of them might not be the true points. Some papers (1, 2, 3, 4, 5, 7, 8, 11) have resorted to find duration of silence to find scene changes, although this works, it will give rise to many false positives, this would increase the running time of the algorithm and also will not leave the system completely robust. This proved that spatial information of the audio signal did not suffice to find these scene changes.</p>
+
+<p>The frequency domain of the audio signal was obtained, this gave more data to work with. One of the best papers that used this frequency domain data for good scene change detection was paper 14 (in references), it treated the frequency components for every sample as a vector and found the cosine similarity between the vectors. The reason cosine similarity was used was to keep the distance measure oblivious of the magnitudes of the vector. Although this approach performed much better than the previous spatial domain based approaches, it too gave too many false positives and was hence discarded in the end. (The implementation of the algorithm can be found here <a href="https://github.com/vasanthkalingeri/CommercialDetection/tree/aa972690e5e5955e80252ddeb790723b46709883">https://github.com/vasanthkalingeri/CommercialDetection/tree/aa972690e5e5955e80252ddeb790723b46709883</a>)</p>
+
+<p>Using audacity, we can plot the power spectrum of the audio signal so that we can manually determine if anything peculiar can be observed at scene changes. One such shot is here.</p>
+
+<p><img src="https://drive.google.com/file/d/0B_MvABcH-rk0ZWhlNjRFX3p2MHc/view?usp=sharing" alt="Power spectrogram"></p>
+
+<p>The top axis, gives the time and the left axis the frequency, the color of the plot is based on the variation of amplitude values at the (frequency, time) pair. The color system follow is like the rainbow's VIBGYOR, red indication presence of high amplitudes and blue that of low amplitudes. From this we observe that the amplitude is very low at a scene change( 1 min, 8 seconds and 15 milliseconds), sometimes this amplitude is zero. We can hence assign a score at every time period and based on the score classify whether it is a scene change point or not.</p>
+
+<p>Let us delve deeper into the data we have for every time period. We can see that during a shot change, the minimum and maximum amplitudes are very low. So a score could be, the difference of minimum and maximum amplitudes at every time period. This score seems apt, since it would help us detect scene changes, but what if the minimum and maximum frequencies were high, but the difference low, then this score would fail. So a score that would work is</p>
+
+<pre><code> score = (maximum + minimum) / variance
+</code></pre>
+
+<p>The above score would be high for scene changes and extremely low for normal segments of audio. The intuition behind this is, the sum of maximum and minimum would be low for a scene change, which would never be this low for normal segments. The variance would take a step further and add more confidence to the score, since the variance would be very low for a scene change and high otherwise, the score would shoot up at scene changes. Practically this works with a true positive rate of 100% and a false positive rate of 5%, this would be good enough for our purpose.</p>
+
+<p>I am sure you noticed that theoretically this fails. It fails when all the amplitudes are nearly equal(so variance is low, shooting up the score). If we convert such a frequency domain data to spatial domain, the audio would sound like terrible unbearable noise to the human ear that cannot be replicated naturally by any instrument or human. In TVs however such an audio usually means an error in transmission, so we can safely use this score to detect scene changes. This is the only assumption made while detecting scene changes and as stated this is by far a very safe assumption to make.</p>
+
+<p>Our pseudo code for scene change detection and efficient audio fingerprinting now would be as follows</p>
+
+<pre><code>//Find audio of video using ffmpeg
+//find Fast fourier transform with a 3ms window This window size was optimal to detect all scene changes fast
+//Do not overlap the windows when finding the Fourier transform
+For each window:
+      //Find the score from the vector
+      if score &gt; 0.01:
+          //This was optimally adjusted, usually scene changes are greater than 0.01 while normal segments are less than 0.005
+          Mark scene change and store this time value
+      else:
+          proceed
+</code></pre>
+
+<p>The above algorithm will hence help us obtain the time periods where there was a scene change. In the vicinity of these scene changes we apply audio fingerprinting as we did in the previous algorithm. The implementation of the process till this stage can be found here <a href="https://github.com/vasanthkalingeri/CommercialDetection/tree/094a883c3293bd9c406e9e7ec44a2db292ac4148">https://github.com/vasanthkalingeri/CommercialDetection/tree/094a883c3293bd9c406e9e7ec44a2db292ac4148</a> .</p>
+
+<p>Now we have a system that can detect scene changes, this is dividing the entire video into blocks. So we have essentially re-winded the process of creating a TV broadcast. With these individual blocks of videos in place, our step now is to classify each block to be either a commercial or TV program. This is a really good stage to be in. Using the famous divide and conquer strategy on this problem, we have gone from a problem of detecting commercials in a video to identifying which block/blocks of video represent a commercial. This is a comparatively easier problem to be solving.</p>
+
+<p>We now obtain an output that looks like this</p>
+
+<pre><code> 00:00:00 - 00:00:37 = unclassified
+ 00:00:37 - 00:00:38 = silence
+ 00:00:38 - 00:00:52 = ad by jeopardy
+ 00:00:52 - 00:00:53 = silence
+ 00:00:53 - 00:01:08 = unclassified
+</code></pre>
+
+<p>Here ad by jeopardy has been hand picked and fingerprinted. 'Unclassified' are the blocks that it has divided the video into, we have to classify each of these blocks and our system would be complete. </p>
+
+<p>Notice that the output file looks very similar to the input labels file, this is kept this way for a reason which you will find out in later parts of the blog.</p>
+
+<h2>
+<a id="identifying-commercials" class="anchor" href="#identifying-commercials" aria-hidden="true"><span class="octicon octicon-link"></span></a>Identifying commercials</h2>
 
 <p><img src="http://www.fictionlab-fctp.it/wp-content/uploads/2015/02/workInProgress-487x435.jpg" alt="Work under progress"></p>
+
+<h2>
+<a id="teaching-the-computer" class="anchor" href="#teaching-the-computer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Teaching the computer</h2>
+
+<p>Our hypothetical human could not detect commercials either, without an expert teaching him which commercial each video segment is. It would require a lot of background knowledge for a computer to detect new commercials just by seeing them, since this system is not a strong AI, this cannot be expected out of it. So we design a system to teach it commercials which the system tags as unknown.</p>
+
+<p>(I am skipping the parts of instructions about how to create a web interface since there are many better resources for that)</p>
+
+<p>This is the simplest of all steps. We create an interface to easily edit the output given by the first run of the system, the interface mainly comprises of a human being able to see each unknown block and update its name. The new updated output file is then used as the 'labels' files for audio fingerprinting, this time only those names which are not already present in the database are used, hence this way new commercials are learnt.</p>
+
+<p>This is the version of the system currently on git, it requires a little work to be done with the interface for it to work more smoothly.</p>
 
 <h1>
 <a id="references" class="anchor" href="#references" aria-hidden="true"><span class="octicon octicon-link"></span></a>References</h1>
 
-<p>*Real time commercial detection using MPEG features - <a href="http://www.researchgate.net/profile/Nevenka_Dimitrova/publication/229024227_Real_time_commercial_detection_using_MPEG_features/links/00b7d52b9b0879c1bc000000.pdf">http://www.researchgate.net/profile/Nevenka_Dimitrova/publication/229024227_Real_time_commercial_detection_using_MPEG_features/links/00b7d52b9b0879c1bc000000.pdf</a></p>
-
-<p>*Automatic detection of TV commercials - <a href="http://www.researchgate.net/profile/Oge_Marques/publication/3227702_Automatic_detection_of_TV_commercials/links/0c96051e533d12d515000000.pdf">http://www.researchgate.net/profile/Oge_Marques/publication/3227702_Automatic_detection_of_TV_commercials/links/0c96051e533d12d515000000.pdf</a></p>
-
-<p>*A high-performance shot boundary detection algorithm using multiple cues</p>
-
-<p>*Story Segmentation and Detection of Commercials
-In Broadcast News Video - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.46.6845&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.46.6845&amp;rep=rep1&amp;type=pdf</a></p>
-
-<p>*CONSTRUCTION AND EVALUATION OF A ROBUST MULTIFEATURE SPEECH/MUSIC
-DISCRIMINATOR - <a href="http://www.ee.columbia.edu/%7Edpwe/papers/ScheiS97-mussp.pdf">http://www.ee.columbia.edu/~dpwe/papers/ScheiS97-mussp.pdf</a></p>
-
-<p>*On the detection and recognition of television commercials - <a href="https://ub-madoc.bib.uni-mannheim.de/800/1/TR-96-016.pdf">https://ub-madoc.bib.uni-mannheim.de/800/1/TR-96-016.pdf</a></p>
-
-<p>*Time constraint boost for TV commercial detection - <a href="http://research.microsoft.com/en-us/um/people/taoqin/papers/qin-icip04.pdf">http://research.microsoft.com/en-us/um/people/taoqin/papers/qin-icip04.pdf</a></p>
-
-<p>*A confidence based recognition system for TV commercials - <a href="http://crpit.com/confpapers/CRPITV75Li.pdf">http://crpit.com/confpapers/CRPITV75Li.pdf</a></p>
-
-<p>*Comparision and combination of two novel Commercial detection methods - <a href="http://www.cs.cmu.edu/%7Emychen/publication/duygulu_ICME04.pdf">http://www.cs.cmu.edu/~mychen/publication/duygulu_ICME04.pdf</a></p>
-
-<p>*A psuedo statistical approach to commercial detection - <a href="http://lyle.smu.edu/%7Eprangara/Report_Commercial_Boundary_Detection.pdf">http://lyle.smu.edu/~prangara/Report_Commercial_Boundary_Detection.pdf</a></p>
-
-<p>*Real time commercial detection in video - <a href="http://www.cse.msu.edu/%7Efengzhey/downloads/projects/before2015/Comcast-2013.pdf">http://www.cse.msu.edu/~fengzhey/downloads/projects/before2015/Comcast-2013.pdf</a></p>
-
-<p>*Detection of commercials using sift - <a href="http://www.ijetae.com/files/Volume4Issue6/IJETAE_0614_82.pdf">http://www.ijetae.com/files/Volume4Issue6/IJETAE_0614_82.pdf</a></p>
-
-<p>*Robust learning based TV commercial detection - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.72.9758&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.72.9758&amp;rep=rep1&amp;type=pdf</a>         </p>
+<ol>
+<li><p>Real time commercial detection using MPEG features - <a href="http://www.researchgate.net/profile/Nevenka_Dimitrova/publication/229024227_Real_time_commercial_detection_using_MPEG_features/links/00b7d52b9b0879c1bc000000.pdf">http://www.researchgate.net/profile/Nevenka_Dimitrova/publication/229024227_Real_time_commercial_detection_using_MPEG_features/links/00b7d52b9b0879c1bc000000.pdf</a></p></li>
+<li><p>Automatic detection of TV commercials - <a href="http://www.researchgate.net/profile/Oge_Marques/publication/3227702_Automatic_detection_of_TV_commercials/links/0c96051e533d12d515000000.pdf">http://www.researchgate.net/profile/Oge_Marques/publication/3227702_Automatic_detection_of_TV_commercials/links/0c96051e533d12d515000000.pdf</a></p></li>
+<li><p>A high-performance shot boundary detection algorithm using multiple cues</p></li>
+<li><p>Story Segmentation and Detection of Commercials
+In Broadcast News Video - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.46.6845&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.46.6845&amp;rep=rep1&amp;type=pdf</a></p></li>
+<li><p>CONSTRUCTION AND EVALUATION OF A ROBUST MULTIFEATURE SPEECH/MUSIC
+DISCRIMINATOR - <a href="http://www.ee.columbia.edu/%7Edpwe/papers/ScheiS97-mussp.pdf">http://www.ee.columbia.edu/~dpwe/papers/ScheiS97-mussp.pdf</a></p></li>
+<li><p>On the detection and recognition of television commercials - <a href="https://ub-madoc.bib.uni-mannheim.de/800/1/TR-96-016.pdf">https://ub-madoc.bib.uni-mannheim.de/800/1/TR-96-016.pdf</a></p></li>
+<li><p>Time constraint boost for TV commercial detection - <a href="http://research.microsoft.com/en-us/um/people/taoqin/papers/qin-icip04.pdf">http://research.microsoft.com/en-us/um/people/taoqin/papers/qin-icip04.pdf</a></p></li>
+<li><p>A confidence based recognition system for TV commercials - <a href="http://crpit.com/confpapers/CRPITV75Li.pdf">http://crpit.com/confpapers/CRPITV75Li.pdf</a></p></li>
+<li><p>Comparision and combination of two novel Commercial detection methods - <a href="http://www.cs.cmu.edu/%7Emychen/publication/duygulu_ICME04.pdf">http://www.cs.cmu.edu/~mychen/publication/duygulu_ICME04.pdf</a></p></li>
+<li><p>A psuedo statistical approach to commercial detection - <a href="http://lyle.smu.edu/%7Eprangara/Report_Commercial_Boundary_Detection.pdf">http://lyle.smu.edu/~prangara/Report_Commercial_Boundary_Detection.pdf</a></p></li>
+<li><p>Real time commercial detection in video - <a href="http://www.cse.msu.edu/%7Efengzhey/downloads/projects/before2015/Comcast-2013.pdf">http://www.cse.msu.edu/~fengzhey/downloads/projects/before2015/Comcast-2013.pdf</a></p></li>
+<li><p>Detection of commercials using sift - <a href="http://www.ijetae.com/files/Volume4Issue6/IJETAE_0614_82.pdf">http://www.ijetae.com/files/Volume4Issue6/IJETAE_0614_82.pdf</a></p></li>
+<li><p>Robust learning based TV commercial detection - <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.72.9758&amp;rep=rep1&amp;type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.72.9758&amp;rep=rep1&amp;type=pdf</a>  </p></li>
+<li><p>Automatic audio segmentation using a measure of novelty - <a href="http://www.fxpal.com/publications/FXPAL-PR-00-094.pdf">http://www.fxpal.com/publications/FXPAL-PR-00-094.pdf</a>       </p></li>
+</ol>
         </section>
 
         <aside id="sidebar">
