@@ -22,7 +22,7 @@ GSOC 2015 project for Red Hen Labs. More details here http://vasanthkalingeri.gi
 
 *Create a file like data/labels for the given video
 
-    python src/main.py -generate data/video.mpg data/labels.mpg
+    python src/main.py -generate data/video.mpg data/labels
 
 *The above creates a directory called db containing the commercials labelled. The system also learns from these commercials
 
