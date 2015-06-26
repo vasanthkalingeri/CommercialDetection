@@ -26,6 +26,10 @@ button[id^='ad'] {
     background-color:LightGreen
 }
 
-input[name^='un'], textarea {
-    background-color:red
+input[value^='un'], textarea {
+    background-color:Magenta
+}
+
+input[value^='ad'], textarea {
+    background-color:LightGreen
 }

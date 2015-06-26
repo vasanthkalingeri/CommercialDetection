@@ -28,21 +28,20 @@ def get_list(labels):
     return l
 
 @csrf_exempt
-def index(request, video_name):
+def index(request):
     
     global lines
-    print video_name
     t = get_template('output/index.html')
     labels = fileHandler.LabelsFile(infile=BASE_DIR + "/../" + OUTPUT).read_lables(skip=False)
     lines = get_list(labels)
-    html = t.render(Context({'video_path': video_name, 'item_list': lines}))
+    html = t.render(Context({'video_path': WEB_VIDEO_NAME, 'item_list': lines}))
     return HttpResponse(html)
 
 @csrf_exempt
 def update(request):
     
     global lines
-    labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../temp.txt")
+    labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../labels.txt")
     for line in lines:
         start_secs = str(line[3])
         start = unicode('start' + start_secs)
