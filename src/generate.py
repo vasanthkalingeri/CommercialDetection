@@ -13,7 +13,8 @@ class Generate(object):
         self.labels = LabelsFile(labels_fname)
         self.video_name = video_name
         self.djv = Dejavu(CONFIG)
-    
+        self.db_content = []
+            
     def build_db(self, aud_ext=".wav", vid_ext=".mpg"):
         
         labels = self.labels.read_lables()
@@ -24,11 +25,14 @@ class Generate(object):
         
             #Creating for the first time
             f = open(DBNAME, "w")
-            f.write("name, duration, path, classified\n")
+            f.write("duration, name, path, classified\n")
         
         else:
-        
             #Already exists
+            #We open and read the content first
+            with open(DBNAME) as f:
+                lines = f.readlines()
+                self.db_content = [line.split(',')[1] for line in lines[1:]]
             f = open(DBNAME, "a")
                 
         for data in labels:
@@ -37,6 +41,10 @@ class Generate(object):
             end = data[1]
             name = data[2]
             
+            if self.db_content != [] and (name in self.db_content):
+                print "Already Fingerprinted"
+                continue
+                
             duration = timeFunc.get_delta_string(start, end)
             
             #Create a file in the db folder, audio and video are stored seperately 
@@ -70,11 +78,12 @@ class Generate(object):
         self.build_db(aud_ext, vid_ext)
         self.fingerprint_db(aud_ext, vid_ext)
         
-def test():
-    
-    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
-    gen.run()
-    gen = Generate("../data/labels", "../data/test.mpg") 
-    gen.run()
+#def test():
+##    
+#    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
+###    gen.clean_db()
+#    gen.run()
+##    gen = Generate("../data/labels", "../data/test.mpg") 
+##    gen.run()
 
-test()
+#test()
