@@ -65,8 +65,8 @@ class DatabaseFile(object):
                 duration = timeFunc.get_seconds(duration)
                 return [name, duration, verified]
             i += 1
+        print index, i
         return -1
-    
     
 #def test():
 #    

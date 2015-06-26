@@ -21,20 +21,19 @@ class Generate(object):
         
         filename = len(os.listdir(DB_AUDIO)) + 1 #Number of files in the directory + 1
         
-        if filename == 1:
-        
-            #Creating for the first time
-            f = open(DBNAME, "w")
-            f.write("duration, name, path, classified\n")
-        
-        else:
+        try:
             #Already exists
             #We open and read the content first
             with open(DBNAME) as f:
                 lines = f.readlines()
                 self.db_content = [line.split(',')[1] for line in lines[1:]]
             f = open(DBNAME, "a")
-                
+            
+        except:
+            #Creating for the first time
+            f = open(DBNAME, "w")
+            f.write("name, duration, path, classified\n")
+        
         for data in labels:
         
             start = data[0]
@@ -52,7 +51,7 @@ class Generate(object):
             ffmpeg.create_audio(DB_VIDEO + str(filename) + vid_ext, DB_AUDIO + str(filename) + aud_ext)
             
             #Create a corresponding entry in the csv file
-            s = ",".join(data[1:])
+            s = ",".join([name, duration])
             s = s + "," + DB_VIDEO + str(filename) + vid_ext + ",yes\n" #Check verified to be true since human tagged
             f.write(s)
             filename += 1
@@ -67,7 +66,7 @@ class Generate(object):
         if choice == "yes":
             print "Cleaning database.."
             filename = len(os.listdir(DB_AUDIO)) + 1
-            for i in range(filename):
+            for i in range(1, filename):
                 os.remove(DB_AUDIO + str(i) + aud_ext)
                 os.remove(DB_VIDEO + str(i) + vid_ext)
                 os.remove(DBNAME)
@@ -79,11 +78,11 @@ class Generate(object):
         self.fingerprint_db(aud_ext, vid_ext)
         
 #def test():
-##    
+#    
 #    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
-###    gen.clean_db()
+#    
 #    gen.run()
-##    gen = Generate("../data/labels", "../data/test.mpg") 
-##    gen.run()
+#    gen = Generate("../data/labels", "../data/test.mpg") 
+#    gen.run()
 
 #test()
