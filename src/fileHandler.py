@@ -9,7 +9,7 @@ class LabelsFile(object):
         self.filename = infile
         self.newfile = outfile
         
-    def read_lables(self):
+    def read_lables(self, skip=True):
         
         """"Returns: [start, end, name]"""
         
@@ -22,7 +22,7 @@ class LabelsFile(object):
                 time = line[0].split("-")
                 time = [i.strip(" ") for i in time]
                 name = line[-1].strip()
-                if name == UNCLASSIFIED_CONTENT or name == SILENCE:
+                if (skip is True) and (name == UNCLASSIFIED_CONTENT or name == SILENCE):
                     continue
                 yield [time[0], time[1], name]
     
