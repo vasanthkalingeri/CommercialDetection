@@ -1,8 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.http import HttpResponse
-from django.template import Template, Context
+from django.template import Template, Context, RequestContext
 from django.template.loader import get_template
-
 from web.settings import BASE_DIR
 import sys
 sys.path.append(BASE_DIR + "/../") #Shift one higher up the parent directory 
@@ -10,24 +9,47 @@ import os
 from constants import *
 import fileHandler
 import timeFunc
+from django.views.decorators.csrf import csrf_exempt
 
-#<button onClick='play({{item.3}});' id='{{item.4}}'>{{item.2}}</button>
+lines = None
 
 def get_list(labels):
     
+    #each element of list is
+#        [start, end, name, start_secs, first 2 letters of name + start_secs]
     l = []
     for item in labels:
         name = item[2]
         t3 = timeFunc.get_seconds(item[0])
-        hid = name[0:2] + str(t3)
+        hid = name[0:2] + str(t3) #Forms unique id based on type of content and start of it in seconds
         item.append(t3)
         item.append(hid)
         l.append(item)
     return l
 
-def index(request):
+@csrf_exempt
+def index(request, video_name):
     
+    global lines
+    print video_name
     t = get_template('output/index.html')
     labels = fileHandler.LabelsFile(infile=BASE_DIR + "/../" + OUTPUT).read_lables(skip=False)
-    html = t.render(Context({'video_path': 'out1.webm', 'item_list': get_list(labels)}))
+    lines = get_list(labels)
+    html = t.render(Context({'video_path': video_name, 'item_list': lines}))
     return HttpResponse(html)
+
+@csrf_exempt
+def update(request):
+    
+    global lines
+    labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../temp.txt")
+    for line in lines:
+        start_secs = str(line[3])
+        start = unicode('start' + start_secs)
+        end = unicode('end' + start_secs)
+        name = unicode('name' + start_secs)
+        l = [str(request.POST.get(start)), str(request.POST.get(end)), str(request.POST.get(name))]
+        print l
+        labels.write_labels(l)
+    
+    return HttpResponse('Thank you for teaching me :-)')
