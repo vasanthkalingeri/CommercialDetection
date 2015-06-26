@@ -41,7 +41,7 @@ def index(request):
 def update(request):
     
     global lines
-    labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../labels.txt")
+    labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../" + WEB_LABELS)
     for line in lines:
         start_secs = str(line[3])
         start = unicode('start' + start_secs)
