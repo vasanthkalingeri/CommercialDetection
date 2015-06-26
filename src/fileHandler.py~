@@ -22,7 +22,7 @@ class LabelsFile(object):
                 time = line[0].split("-")
                 time = [i.strip(" ") for i in time]
                 name = line[-1].strip()
-                if (skip is True) and (name[:2] != 'ad'): #Get only ad contents
+                if (skip is True) and (name[:2] != 'ad'):
                     continue
                 yield [time[0], time[1], name]
     

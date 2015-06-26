@@ -50,4 +50,3 @@ UNCLASSIFIED_CONTENT = "unclassified"
 
 #For web content
 WEB_VIDEO_NAME = 'out1.webm'
-WEB_LABELS = 'labels.txt'

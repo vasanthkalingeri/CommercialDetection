@@ -26,5 +26,5 @@ def create_images(video_name, fps, folder):
     
 def convert_video(video_name, cpu_cores=2, preset="superfast"):
     
-    name, extension = video_name.split('.')
+    name, extension = video_name[-5:].split('.')
     os.system("ffmpeg -i " + video_name + " -r 5 -cpu-used " + str(cpu_cores) + " " + name + ".webm -preset " + preset)

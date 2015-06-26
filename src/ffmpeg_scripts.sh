@@ -10,4 +10,6 @@ ffmpeg -i out50.mpg -vf select="eq(pict_type\,PICT_TYPE_I)" -vsync 0 data/%d.png
 
 ffprobe -select_streams v -show_frames out50.mpg; #used to select frame info
 
+ffmpeg -i video.mpg -vf scale=100:100 -acodec copy out.mpg
 
+scp -P 5022 vasanth@gsocdev.ccextractor.org:/data/2015-04-28_0635_US_KABC_Jimmy_Kimmel_Live.mpg .
