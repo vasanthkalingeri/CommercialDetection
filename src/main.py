@@ -17,8 +17,12 @@ elif sys.argv[1] == "-l":
 
     global WEB_VIDEO_NAME
     video_name = sys.argv[2]
-    ffmpeg.convert_video(video_name, "web/ouput/static")    
+    ffmpeg.convert_video(video_name)
     name, extension = video_name[-5:].split('.')
+    name = video_name.split('/')[-1]
+    name = name[:-len(extension)-1]
+    
+    os.system("mv " + name + '.webm ' + 'web/output/static/output/out1.webm')
     WEB_VIDEO_NAME = name
     os.system('python web/manage.py runserver')
     

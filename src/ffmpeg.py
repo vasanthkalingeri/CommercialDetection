@@ -24,7 +24,14 @@ def create_images(video_name, fps, folder):
 
     os.system("ffmpeg -i " + video_name + " -vf fps=1/" + str(fps) + " " + folder + "%d.png")
     
-def convert_video(video_name, cpu_cores=2, preset="superfast"):
+def convert_video(video_name, cpu_cores=4, preset="superfast"):
     
+    print "Converting video so that it can be played on browser..."
     name, extension = video_name[-5:].split('.')
-    os.system("ffmpeg -i " + video_name + " -r 5 -cpu-used " + str(cpu_cores) + " " + name + ".webm -preset " + preset)
+    name = video_name.split('/')[-1]
+    name = name[:-len(extension)-1]
+    
+    print name, extension
+#    print "ffmpeg -i " + video_name + " -r 5 -cpu-used " + str(cpu_cores) +" " + name + ".webm -preset " + preset
+    os.system("ffmpeg -i " + video_name + " -r 5 -cpu-used " + str(cpu_cores) +" " + name + ".webm -preset " + preset)
+    print "Conversion done!!"
