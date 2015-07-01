@@ -22,13 +22,13 @@ GSOC 2015 project for Red Hen Labs. More details here http://vasanthkalingeri.gi
 
 *Create a file like data/labels for the given video
 
-    python src/main.py -generate data/video.mpg data/labels
+    python src/main.py -g data/video.mpg data/labels
 
 *The above creates a directory called db containing the commercials labelled. The system also learns from these commercials
 
 ###To detect commercials
 
-    python src/main.py -recognize data/test.mpg
+    python src/main.py -r data/test.mpg
 
 *This will create a file called output.txt containing the detected commercials.
 
