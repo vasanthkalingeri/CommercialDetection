@@ -38,7 +38,7 @@ GSOC 2015 project for Red Hen Labs. More details here http://vasanthkalingeri.gi
 
 *Now using output.txt as labels for test.mpg, run the program again to update the db with new commercials.
 
-    python src/main.py -generate data/test.mpg output.txt
+    python src/main.py -g data/test.mpg output.txt
 
 ##Results
 The program was tested on Ubuntu 14.04 64 bit LTS. With the following versions of libraries
