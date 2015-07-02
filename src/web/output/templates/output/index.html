@@ -4,17 +4,24 @@
             <title>Results of commercial detection</title>
             <link rel="stylesheet" type="text/css" href="/static/output/output.css">
             <script type="text/javascript" src="/static/output/output.js"></script>
+            <link href="http://vjs.zencdn.net/4.11/video-js.css" rel="stylesheet">
+            <script src="http://vjs.zencdn.net/4.11/video.js"></script>
         </head>
         <body> 
             <div class="container">
                 <div class="video">
                     <br>
                     <br>
-                    {% load staticfiles %}
-                    <video id="mainvid" name="mainvid" autobuffer="autobuffer" controls="controls" style="text-align:center;">
-                        <source src="/static/output/{{video_path}}" type="video/webm">
-                        Your browser does not support HTML5 video.
-                    </video>
+                    <div class="video-js vjs-default-skin vjs-controls-enabled vjs-has-started vjs-paused vjs-user-inactive" poster="/img/poster.jpg" preload="none" id="home_video">
+                        {% load staticfiles %}
+                        <video id="mainvid" class="vjs-default-skin" controls preload="none" data-setup='{}' style="text-align:center;">
+                           <source src="/static/output/{{video_path}}" type="video/webm">
+                        </video>
+                    </div>
+<!--                    <video id="mainvid" name="mainvid" autobuffer="autobuffer" controls="controls" style="text-align:center;">-->
+<!--                        <source src="/static/output/{{video_path}}" type="video/webm">-->
+<!--                        Your browser does not support HTML5 video.-->
+<!--                    </video>-->
                     <br>
                     <br>
                     <p>

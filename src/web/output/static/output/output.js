@@ -1,6 +1,9 @@
 function play(time)
 {
-    alert("I MADE IT !!!!");
-	var player = document.getElementById("mainvid");
-	player.currentTime = time;
+	var myPlayer = videojs('mainvid');
+	videojs("mainvid").ready(function(){
+          var myPlayer = this;
+          // EXAMPLE: Start playing the video.
+          myPlayer.currentTime(time);
+    });
 }
