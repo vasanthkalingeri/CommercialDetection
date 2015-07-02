@@ -10,7 +10,7 @@ from constants import *
 import fileHandler
 import timeFunc
 from django.views.decorators.csrf import csrf_exempt
-from generate import Generate
+#from generate import Generate
 
 lines = None
 
@@ -53,11 +53,5 @@ def update(request):
         l = [str(request.POST.get(start)), str(request.POST.get(end)), str(request.POST.get(name))]
         print l
         labels.write_labels(l)
-    
-    print "Learning new commercials..."
-    name, extension = WEB_VIDEO_NAME[-5:].split('.')
-    
-    gen = Generate(BASE_DIR + "/../" + WEB_LABELS, BASE_DIR + "/../../data/" + name + ".mpg")
-    gen.run()
     
     return HttpResponse('Thank you for teaching me :-)')

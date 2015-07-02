@@ -24,6 +24,8 @@ DB_VIDEO = DB_FOLDER + "video/"
 DBNAME = "../commercials.csv"
 DB_CLASSIFIED = "yes"#"classified"
 DB_UNCLASSIFIED = "no"#"Not classified"
+VIDEO_EXT = ".mpg"
+AUDIO_EXT = ".wav"
 
 #For audiodetect
 WINDOW_SIZE = 0.03 #In seconds
@@ -49,4 +51,6 @@ COMMERCIAL = "commercial"
 UNCLASSIFIED_CONTENT = "unclassified"
 
 #For web content
-WEB_VIDEO_NAME = 'out1.webm'
+WEB_VIDEO_NAME = 'out2.webm'
+WEB_LABELS = 'labels.txt'
+VIDEO_EXT = '.mpg'
