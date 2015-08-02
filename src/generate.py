@@ -64,6 +64,7 @@ class Generate(object):
         
         choice = raw_input("Are you sure you want to remove all commercials in the database? (yes/no)")
         if choice == "yes":
+            self.djv.clear_data() #Clear the mysql db
             print "Cleaning database.."
             filename = len(os.listdir(DB_AUDIO)) + 1
             for i in range(1, filename):
@@ -77,12 +78,12 @@ class Generate(object):
         self.build_db(aud_ext, vid_ext)
         self.fingerprint_db(aud_ext, vid_ext)
         
-#def test():
-#    
+def test():
+    
 #    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
-#    
+    
 #    gen.run()
-#    gen = Generate("../data/labels", "../data/test.mpg") 
-#    gen.run()
+    gen = Generate("../data/labels", "../data/shot_det.mpg") 
+    gen.clean_db()
 
-#test()
+test()
