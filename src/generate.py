@@ -78,12 +78,12 @@ class Generate(object):
         self.build_db(aud_ext, vid_ext)
         self.fingerprint_db(aud_ext, vid_ext)
         
-def test():
+#def test():
     
 #    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
     
 #    gen.run()
-    gen = Generate("../data/labels", "../data/shot_det.mpg") 
-    gen.clean_db()
+#    gen = Generate("../data/labels", "../data/shot_det.mpg") 
+#    gen.clean_db()
 
-test()
+#test()
