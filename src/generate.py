@@ -31,6 +31,7 @@ class Generate(object):
             
         except:
             #Creating for the first time
+            print "File does not exist so creating..."
             f = open(DBNAME, "w")
             f.write("name, duration, path, classified\n")
         
@@ -70,7 +71,7 @@ class Generate(object):
             for i in range(1, filename):
                 os.remove(DB_AUDIO + str(i) + aud_ext)
                 os.remove(DB_VIDEO + str(i) + vid_ext)
-                os.remove(DBNAME)
+            os.remove(DBNAME)
             print "Database is empty"
         
     def run(self, aud_ext=".wav", vid_ext=".mpg"):
@@ -81,9 +82,10 @@ class Generate(object):
 #def test():
     
 #    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
-    
+#    
 #    gen.run()
-#    gen = Generate("../data/labels", "../data/shot_det.mpg") 
+#    gen = Generate("../data/labels", "../data/test.mpg") 
+#    gen.run()
 #    gen.clean_db()
 
 #test()
