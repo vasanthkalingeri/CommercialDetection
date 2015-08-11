@@ -33,3 +33,37 @@ input[value^='un'], textarea {
 input[value^='ad'], textarea {
     background-color:LightGreen
 }
+
+table {
+  border-collapse: collapse;
+  width:100%;
+}
+
+td {
+   width:80px; 
+}
+
+td+td+td {
+    width:auto;
+}
+
+td > input[type='text'] {
+    width:100%;
+}
+
+td.value input {
+    width:100%;
+}
+
+[class^='tag'] {
+    background-color:white;
+}
+
+.headtag {
+    background-color:#0066CC;
+    color:white;
+}
+
+tr:hover {
+    background-color: #C8C8C8;
+}

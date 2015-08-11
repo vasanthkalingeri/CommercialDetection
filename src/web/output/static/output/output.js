@@ -1,3 +1,10 @@
+$('#myTable tr').mouseenter(function(){
+    $(this).css({ background: '#E8E8E8' });
+
+}).mouseleave(function(){
+    $(this).css({ background: '' });
+});
+
 function play(time)
 {
 	var myPlayer = videojs('mainvid');
@@ -60,4 +67,23 @@ function drop(start, end, id)
     var choice = prompt("Do you really want to delete this?(y/n)");
     if(choice == 'y')
         document.getElementById("myTable").deleteRow(index);
+}
+
+function update(text_data , start_secs)
+{
+    $.ajax({
+        url : "update/", 
+        type : "POST",
+        dataType: "json", 
+        data : {
+            start : start_secs,
+            text: text_data,
+            },
+        success : function(json) {
+            $('#result').append( 'ServerResponse:' + json.server_response);
+        },
+        error : function(xhr,errmsg,err) {
+            var a = "1";
+        }
+    });
 }
