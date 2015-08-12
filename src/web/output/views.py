@@ -57,15 +57,17 @@ def update(request):
     return HttpResponse(simplejson.dumps({'server_response': '1' }))
 
 @csrf_exempt
-def save_change(request):
+def save(request):
     
     global lines
+    print BASE_DIR + "/../" + WEB_LABELS
     labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../" + WEB_LABELS)
     print lines
     print "Creating the new labels file..."
     keys = lines.keys()
     keys.sort()
     lines_list = [lines[key] for key in keys]
+    print lines_list
     for line in lines_list:
         start_secs = str(line[3])
         start = unicode('start' + start_secs)
