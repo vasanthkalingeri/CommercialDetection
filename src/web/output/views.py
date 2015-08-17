@@ -25,7 +25,6 @@ def get_dict(labels):
         name = item[2]
         start_secs = timeFunc.get_seconds(item[0])
         end_secs = timeFunc.get_seconds(item[1])
-        hid = name[0:2] + str(start_secs) #Forms unique id based on type of content and start of it in seconds
         item.append(start_secs)
         item.append(end_secs)
         d[start_secs] = item
@@ -71,9 +70,31 @@ def save(request):
     for line in lines_list:
         l = [line[i] for i in range(3)]
         labels.write_labels(l)
-    
-    
     return HttpResponse('Successfully updated :-)')
+
+@csrf_exempt
+def delete(request):
+    
+    global lines
+    keys = lines.keys()
+    keys.sort()
+    start = int(request.POST.get(u'start_sec'))
+    end = int(request.POST.get(u'end_sec'))
+    
+    #Now we find the key which had the previous start
+    for i in range(len(keys)):
+        if keys[i] == start:
+            break
+    old_start = keys[i - 1]
+    
+    #We assign the endtime of this to the previous start
+    lines[old_start][1] = timeFunc.get_time_string(end)
+    lines[old_start][-1] = end
+    
+    del lines[start]
+    
+    print lines[old_start]
+    return HttpResponse(simplejson.dumps({'server_response': '1' }))
 
 @csrf_exempt    
 def add(request):

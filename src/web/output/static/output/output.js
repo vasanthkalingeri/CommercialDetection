@@ -10,9 +10,6 @@ function play(time)
 {
 	var myPlayer = videojs('mainvid');
 	videojs("mainvid").ready(function(){
-//          alert(myPlayer);
-//          alert(time);
-          // EXAMPLE: Start playing the video.
           myPlayer.play();
           myPlayer.currentTime(time);
           myPlayer.play();
@@ -28,7 +25,7 @@ function get_secs(time_str)
     return value;
 }
 
-function add(start, end, start_str, id)
+function add(start, end, start_str)
 {
     var sec_str = prompt("Split at ?", start_str);
     var secs = get_secs(sec_str);
@@ -59,12 +56,28 @@ function add(start, end, start_str, id)
     document.createStyleSheet('/static/output/output.css');
 }
 
-function drop(start, end, id)
+function drop(start, end)
 {
-    var index = id.parentNode.parentNode.rowIndex;
-    var choice = prompt("Do you really want to delete this?(y/n)");
-    if(choice == 'y')
-        document.getElementById("myTable").deleteRow(index);
+    if(confirm("Are you sure you want to remove this label ?"))
+    {
+        $.ajax({
+            url : "delete/", 
+            type : "POST",
+            dataType: "json", 
+            data : {
+                start_sec : start,
+                end_sec: end,
+                },
+            success : function(json) {
+                $('#result').append( 'ServerResponse:' + json.server_response);
+            },
+            error : function(xhr,errmsg,err) {
+                var a = "1";
+            }
+        });
+        var ob = $("#output").load("/output/ #output");
+        document.createStyleSheet('/static/output/output.css');
+    }
 }
 
 function update(text_data , start_secs)
