@@ -7,6 +7,7 @@ import sys
 sys.path.append(BASE_DIR + "/../") #Shift one higher up the parent directory 
 import os
 from constants import *
+from generate import Generate
 import fileHandler
 import timeFunc
 from django.views.decorators.csrf import csrf_exempt
@@ -70,6 +71,8 @@ def save(request):
     for line in lines_list:
         l = [line[i] for i in range(3)]
         labels.write_labels(l)
+    
+    
     return HttpResponse('Successfully updated :-)')
 
 @csrf_exempt    

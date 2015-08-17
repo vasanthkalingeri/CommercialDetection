@@ -32,7 +32,5 @@ elif sys.argv[1] == "-l":
     name, extension = video_name[-5:].split('.')
     name = video_name.split('/')[-1]
     name = name[:-len(extension)-1]
-    
-    
-#    os.system("mv " + name + '.webm ' + 'web/output/static/output/out1.webm')
+    os.system("mv " + name + '.webm ' + 'web/output/static/output/out2.webm')
     print "Go to the URL to edit output.txt"

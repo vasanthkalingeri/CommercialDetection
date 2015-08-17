@@ -37,7 +37,7 @@ SILENCE = "silence"
 
 #in seconds
 VIDEO_SPAN = 5 #How much to take to analyze audio
-VIDEO_GAP = 10 #How much to skip
+VIDEO_GAP = 15 #How much to skip
 TEMP_VIDEO = "../data/temp.mpg"
 TEMP_AUDIO = "../data/temp.wav"
 
