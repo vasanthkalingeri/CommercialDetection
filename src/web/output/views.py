@@ -64,11 +64,7 @@ def save(request):
     keys.sort()
     lines_list = [lines[key] for key in keys]
     for line in lines_list:
-        start_secs = str(line[3])
-        start = unicode('start' + start_secs)
-        end = unicode('end' + start_secs)
-        name = unicode('name' + start_secs)
-        l = [str(request.POST.get(start)), str(request.POST.get(end)), str(request.POST.get(name))]
+        l = [line[i] for i in range(3)]
         labels.write_labels(l)
     return HttpResponse('Successfully updated :-)')
 

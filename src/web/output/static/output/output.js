@@ -108,3 +108,8 @@ function update(text_data , start_secs)
         }
     });
 }
+
+function submit_form()
+{
+    document.updateForm.submit();
+}
