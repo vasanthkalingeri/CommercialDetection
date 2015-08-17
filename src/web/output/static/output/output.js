@@ -5,6 +5,7 @@ $('#myTable tr').mouseenter(function(){
     $(this).css({ background: '' });
 });
 
+
 function play(time)
 {
 	var myPlayer = videojs('mainvid');
@@ -29,29 +30,6 @@ function get_secs(time_str)
 
 function add(start, end, start_str, id)
 {
-//    var new_end = prompt("Keep till?", end);
-//    var index = id.parentNode.parentNode.rowIndex;
-//    var table = document.getElementById("myTable");
-//    var row = table.insertRow(index + 1);
-//    var cells = [];
-//    for (i=0;i<6;i++)
-//        cells.push(row.insertCell(i));
-//    var start = '{{item.0}}<input type="hidden" name="start{{item.3}}" value="{{item.0}}"></input>';
-//    var end = '{{item.1}}<input type="hidden" name="end{{item.3}}" value="{{item.1}}"></input>';
-//    var name = '<input type="text" name="name{{item.3}}" value="{{item.2}}" onchange="update(this.value, {{item.3}});"></input>';
-//    var play = '<button type="button" onClick="play({{item.3}});" style="width:100%">Seek</button>';
-//    var add = '<button type="button" onClick="add({{item.3}},{{item.4}}, this);" style="width:100%">+</button>';
-//    var remove = '<button type="button" onClick="drop({{item.3}},{{item.4}}, this);" style="width:100%">-</button>';
-//    var data = [start, end, name, play, add, remove];
-//    
-//    for (i=0;i<6;i++)
-//        cells[i].innerHTML = data[i];
-
-//    if(get_secs(new_end) > get_secs(end))
-//    {
-//        alert("Invalid range to split!!");
-//        return;
-//    }
     var sec_str = prompt("Split at ?", start_str);
     var secs = get_secs(sec_str);
     
@@ -78,7 +56,6 @@ function add(start, end, start_str, id)
     });
     
     var ob = $("#output").load("/output/ #output");
-//    ob.trigger("pagecreate");
     document.createStyleSheet('/static/output/output.css');
 }
 

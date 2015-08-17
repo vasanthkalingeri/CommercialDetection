@@ -49,10 +49,14 @@ def index(request):
 def update(request):
     
     global lines 
-    start = int(request.POST.get(u'start')[0])
+    start = int(request.POST.get(u'start'))
     text = str(request.POST.get(u'text'))
     #Now we update the value in lines as well
-    lines[start][2] = text
+#    lines[start][2] = text
+    l = lines[start]
+    l[2] = text
+    lines.update({start:l})
+#    print "Updated", lines[start]
     return HttpResponse(simplejson.dumps({'server_response': '1' }))
 
 @csrf_exempt
@@ -83,7 +87,9 @@ def add(request):
     #Now we add the value in lines as well
     lines.update({start: [timeFunc.get_time_string(start), timeFunc.get_time_string(end), UNCLASSIFIED_CONTENT, start, end]})
     
+#    print lines[actual_start]
     #We change the "end" of the previous start
     lines[actual_start][1] = timeFunc.get_time_string(start)
     
+    print len(lines[start]), len(lines[actual_start])
     return HttpResponse(simplejson.dumps({'server_response': '1' }))
