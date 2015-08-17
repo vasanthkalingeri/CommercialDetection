@@ -84,6 +84,8 @@ function update(text_data , start_secs)
             var a = "1";
         }
     });
+    var ob = $("#output").load("/output/ #output");
+    document.createStyleSheet('/static/output/output.css');
 }
 
 function submit_form()
