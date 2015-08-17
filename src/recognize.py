@@ -14,8 +14,8 @@ class Recognize(object):
     """
         This class runs the audio fingerprinting algorithm to find matches of commercials in the audio.
         First detects regions of silence and does match finding only around the regions of silence.
-        
     """
+
     def __init__(self, video_name):
         
         self.video_name = video_name
@@ -62,31 +62,34 @@ class Recognize(object):
     def recognize(self):
         
         labels = LabelsFile(outfile=OUTPUT) 
-
+        print "Now detecting commercials.."
         i = 0
         prev = i
         while i < self.duration:
+            
+            remaining_time = self.duration - i
+            sys.stdout.write('\r')
+            sys.stdout.write("Still %s duration of video to be analyzed" % timeFunc.get_time_string(remaining_time))
+            sys.stdout.flush()
+            
             next, data = self.find_commercial(i)
             if len(data) != 0:
                 #If ad
                 start = data[0]
                 name = data[1]
-                i = next + VIDEO_GAP / 2
+                i = next + (VIDEO_GAP / 2)
                 if (start - prev) >= VIDEO_GAP:
                     labels.write_labels([timeFunc.get_time_string(prev), timeFunc.get_time_string(start), UNCLASSIFIED_CONTENT])
-#                    print timeFunc.get_time_string(prev), timeFunc.get_time_string(start), UNCLASSIFIED_CONTENT
                 else:
                     labels.write_labels([timeFunc.get_time_string(prev), timeFunc.get_time_string(start), SILENCE])
-#                    print timeFunc.get_time_string(prev), timeFunc.get_time_string(start), SILENCE
                 prev = next   
                 labels.write_labels([timeFunc.get_time_string(start), timeFunc.get_time_string(next), name])                     
-#                print timeFunc.get_time_string(start), timeFunc.get_time_string(next), name
             else:
                 i += VIDEO_GAP
+        print
                 
         if (self.duration - prev) > 1: #Atleast one second
             labels.write_labels([timeFunc.get_time_string(prev), timeFunc.get_time_string(self.duration), UNCLASSIFIED_CONTENT])
-#            print timeFunc.get_time_string(prev), timeFunc.get_time_string(self.duration), UNCLASSIFIED_CONTENT
                                     
     def __del__(self):
         
