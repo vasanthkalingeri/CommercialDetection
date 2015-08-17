@@ -1,0 +1,25 @@
+{% block content %}
+<table cellspacing="0" id="myTable" border="1" border-spacing="5em";>
+        <tr align=center class="headtag">
+            <th>Start</th>
+            <th>End</th>
+            <th>Name</th>
+            <th>Play</th>
+            <th>Add</th>
+            <th>Del</th>
+        </tr>
+        <form method="POST" action="/output/save/">
+            {% csrf_token %}
+            {% for item in item_list %}
+                <tr class="tag{{item.3}}" float="right">
+                    <td>{{item.0}}<input type="hidden" name="start{{item.3}}" value="{{item.0}}"></input></td>
+                    <td>{{item.1}}<input type="hidden" name="end{{item.3}}" value="{{item.1}}"></input></td>
+                    <td><input type="text" name="name{{item.3}}" value="{{item.2}}" onchange="update(this.value, {{item.3}});"></input></td>
+                    <td><button type="button" onClick="play({{item.3}});" style="width:100%">Seek</button></td>
+                    <td><button type="button" onClick="add({{item.3}},{{item.4}},'{{item.0}}',this);" style="width:100%">+</button></td>
+                    <td><button type="button" onClick="drop({{item.3}},{{item.4}}, this);" style="width:100%">-</button></td>
+                </tr>
+            {% endfor %}
+<input type="submit" value="Save changes"/>
+<input type="reset" value="Discard changes"/>
+{% endblock %}
