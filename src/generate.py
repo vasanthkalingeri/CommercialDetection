@@ -82,9 +82,9 @@ class Generate(object):
 #def test():
     
 #    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
-#    
+    
 #    gen.run()
-#    gen = Generate("../data/labels", "../data/test.mpg") 
+#    gen = Generate("../data/labels", "../data/shot_det.mpg") 
 #    gen.run()
 #    gen.clean_db()
 

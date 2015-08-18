@@ -8,10 +8,12 @@ class LabelsFile(object):
         
         self.filename = infile
         self.newfile = outfile
+        self.write_count = 0
         
     def read_lables(self, skip=True):
         
-        """"Returns: [start, end, name]"""
+        """"Returns: [start, end, name]
+            skip = True means skips all the labels which do not start with ad"""
         
         with open(self.filename) as fd:
             for line in fd:
@@ -33,7 +35,11 @@ class LabelsFile(object):
             Where start and end can be given in seconds or as a string
         """
         
-        f = open(self.newfile, 'a')
+        if self.write_count == 0:
+            f = open(self.newfile, 'w')
+        else:
+            f = open(self.newfile, 'a')
+        
         start = content[0]
         end = content[1]
         name = content[2]
@@ -45,6 +51,7 @@ class LabelsFile(object):
         line += '\n'
         f.write(line)
         f.close()
+        self.write_count += 1
 
 class DatabaseFile(object):
     
@@ -66,6 +73,7 @@ class DatabaseFile(object):
                 return [name, duration, verified]
             i += 1
         print index, i
+        raise Exception("Csv file and mysqldb are not in sync.")
         return -1
     
 #def test():
