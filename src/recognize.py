@@ -8,6 +8,7 @@ import numpy as np
 from audiodetect import DetectSilence
 from fileHandler import LabelsFile, DatabaseFile
 import sys
+import mimetypes
 
 class Recognize(object):
     
@@ -18,6 +19,12 @@ class Recognize(object):
 
     def __init__(self, video_name):
         
+        file_type = mimetypes.guess_type(video_name)[0]
+        
+        if file_type[:3] != "vid":#The file is not a video file
+            print "No video file found"
+            raise Exception(INCORRECT_VIDEO_FILE_ERROR)
+        
         self.video_name = video_name
         self.djv = Dejavu(CONFIG)
         
@@ -26,6 +33,10 @@ class Recognize(object):
         self.frames, self.Fs, hash_val = decoder.read(TEMP_AUDIO)
         self.frames = self.frames[0] #Since we always create single channel audio
         self.duration = int(self.frames.shape[0] / (self.Fs*1.0)) #Duration of the entire video in seconds
+        
+        if self.duration <= (VIDEO_SPAN + VIDEO_GAP):
+            print "Video too short to be analyzed"
+            raise Exception(VIDEO_TOO_SHORT_ERROR)
 
     def find_commercial(self, start, span=VIDEO_SPAN):
         
@@ -38,8 +49,10 @@ class Recognize(object):
         
         data = np.copy(self.frames[start*self.Fs:(start+span)*self.Fs])
         song = self.djv.recognize(DataRecognizer, [data])
+        
         if song is None:
             return [start, []] #We can safely skip
+            
         if song[DJV_CONFIDENCE] >= CONFIDENCE_THRESH:
 
             if song[DJV_OFFSET] < 0:
@@ -83,10 +96,12 @@ class Recognize(object):
                 start = data[0]
                 name = data[1]
                 i = next + (VIDEO_GAP / 2)
-                if abs(prev - start) >= VIDEO_SPAN: #If greater than the amount to scan, can safely skip
+                
+                if abs(prev - start) >= VIDEO_SPAN: #If greater than the amount to scan, has to be marked unclassified
                     labels.write_labels([timeFunc.get_time_string(prev), timeFunc.get_time_string(start), UNCLASSIFIED_CONTENT])
                 else:
-                    start = prev
+                    start = prev #We safely skip
+                
                 prev = next   
                 labels.write_labels([timeFunc.get_time_string(start), timeFunc.get_time_string(next), name])                     
             else:

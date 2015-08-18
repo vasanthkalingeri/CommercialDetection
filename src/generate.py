@@ -5,11 +5,23 @@ from dejavu.recognize import FileRecognizer
 import timeFunc
 import ffmpeg
 from fileHandler import LabelsFile
+import mimetypes
 
 class Generate(object):
 
     def __init__(self, labels_fname, video_name):
     
+        label_file_type = mimetypes.guess_type(labels_fname)[0]
+        video_file_type = mimetypes.guess_type(video_name)[0]
+        
+        if label_file_type[:3] != "tex":#The file is not a labels file
+            print "Incorrect label file"
+            raise Exception(INCORRECT_LABEL_FILE_ERROR)
+        
+        if video_file_type[:3] != "vid":#The file is not a video file
+            print "Incorrect video file"
+            raise Exception(INCORRECT_VIDEO_FILE_ERROR)
+            
         self.labels = LabelsFile(labels_fname)
         self.video_name = video_name
         self.djv = Dejavu(CONFIG)
@@ -69,8 +81,12 @@ class Generate(object):
             print "Cleaning database.."
             filename = len(os.listdir(DB_AUDIO)) + 1
             for i in range(1, filename):
-                os.remove(DB_AUDIO + str(i) + aud_ext)
-                os.remove(DB_VIDEO + str(i) + vid_ext)
+                try:
+                    os.remove(DB_AUDIO + str(i) + aud_ext)
+                    os.remove(DB_VIDEO + str(i) + vid_ext)
+                except:
+                    print "File already removed, or you don't have permission"
+                    
             os.remove(DBNAME)
             print "Database is empty"
         

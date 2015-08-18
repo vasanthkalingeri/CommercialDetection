@@ -2,7 +2,6 @@ import os
 
 def create_video(start, duration, video_src, video_dst, force_fps=False, fps=60):
     
-#    print "ffmpeg -ss " + start + " -i " + video_src + " -t " + duration + " -acodec copy -vcodec copy " + video_dst
     print
     print "Creating the video",video_dst
     os.system("ffmpeg -ss " + start + " -i " + video_src + " -t " + duration + " -acodec copy -vcodec copy " + video_dst + " -loglevel quiet")
@@ -15,7 +14,6 @@ def create_audio(video_src, audio_dst, rate=44100, channels=1, block="160k"):
     
     print
     print "Creating audio for the video"
-#    print "ffmpeg -i " + video_src + " -ab " + block + " -ac " + channels + " -ar " + rate + " -vn " + audio_dst
     os.system("ffmpeg -i " + video_src + " -ab " + block + " -ac " + str(channels) + " -ar " + str(rate) + " -vn " + audio_dst + " -loglevel quiet")
     print "Audio created!!"
     print
@@ -32,6 +30,5 @@ def convert_video(video_name, cpu_cores=4, preset="superfast"):
     name = name[:-len(extension)-1]
     
     print name, extension
-#    print "ffmpeg -i " + video_name + " -r 5 -cpu-used " + str(cpu_cores) +" " + name + ".webm -preset " + preset
     os.system("ffmpeg -i " + video_name + " -r 5 -cpu-used " + str(cpu_cores) +" " + name + ".webm -preset " + preset)
     print "Conversion done!!"

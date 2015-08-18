@@ -1,5 +1,8 @@
 def get_time_string(tsecs):
     
+    if type(tsecs) != int:
+        return INVALID_TYPE_OF_TIME_ERROR
+        
     m, s = divmod(tsecs, 60)
     h, m = divmod(m, 60)
     h = str(int(h))
@@ -14,6 +17,10 @@ def get_time_string(tsecs):
 def get_seconds(tstring):
     
     form = tstring.count(":")# to check if h:m:s format or m:s format
+    
+    if form == 0:
+        return INVALID_TIME_FORMAT_ERROR
+    
     tstring = tstring.strip()
     time = tstring.split(":")
     time = [int(i) for i in time]
@@ -24,10 +31,15 @@ def get_seconds(tstring):
 
 def get_delta_string(t1str, t2str):
     """Finds s2 - s1 """
+    
     t1str = t1str.strip(" ")
     t2str = t2str.strip(" ")
     s1 = get_seconds(t1str)
     s2 = get_seconds(t2str)
     delta = s2 - s1
+    
+    if delta < 0:
+        return INVALID_TIME_DIFFERENCE_ORDER_ERROR
+    
     return get_time_string(delta)
 

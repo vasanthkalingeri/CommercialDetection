@@ -1,6 +1,7 @@
 import timeFunc
 from constants import *
 import os
+import mimetypes
 
 class LabelsFile(object):
     
@@ -9,6 +10,10 @@ class LabelsFile(object):
         self.filename = infile
         self.newfile = outfile
         self.write_count = 0
+        label_file_type = mimetypes.guess_type(self.filename)[0]
+        if label_file_type[:3] != "tex":#The file is not a labels file
+            print "Incorrect label file"
+            raise Exception(INCORRECT_LABEL_FILE_ERROR)
         
     def read_lables(self, skip=True):
         
@@ -58,7 +63,11 @@ class DatabaseFile(object):
     def __init__(self, filename):
     
         self.filename = filename
-    
+        label_file_type = mimetypes.guess_type(self.filename)[0]
+        if (label_file_type[:3] != "tex") and self.filename[-3:] == "csv":#The file is not a labels file
+            print "Incorrect database file"
+            raise Exception(INCORRECT_DB_FILE_ERROR)
+        
     def get_line(self, index):
         
         f = open(self.filename)
@@ -73,7 +82,8 @@ class DatabaseFile(object):
                 return [name, duration, verified]
             i += 1
         print index, i
-        raise Exception("Csv file and mysqldb are not in sync.")
+        print "Db and csv are not in sync"
+        raise Exception(DB_CSV_OUT_OF_SYNC_ERROR)
         return -1
     
 #def test():
