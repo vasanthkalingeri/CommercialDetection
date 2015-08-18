@@ -29,7 +29,12 @@ class Recognize(object):
 
     def find_commercial(self, start, span=VIDEO_SPAN):
         
-        """Uses audio fingerprinting to detect known commercials"""
+        """Uses audio fingerprinting to detect known commercials
+            If commercial is detected it returns the following:
+                [end_time, [actual_start of commercial, duration of commercial]]
+            If no commercial is found
+                [start(the value that was passed), []]
+        """
         
         data = np.copy(self.frames[start*self.Fs:(start+span)*self.Fs])
         song = self.djv.recognize(DataRecognizer, [data])
@@ -46,7 +51,7 @@ class Recognize(object):
             start = int(start)
             
             #Read the database to obtain the end time of the commercial
-            index = int(song[DJV_SONG_NAME]) #This is the line containing the db details
+            index = int(song[DJV_SONG_NAME]) - 1 #This is the line containing the db details
             name, duration, verified = DatabaseFile(DBNAME).get_line(index)
             
             if duration < song[DJV_OFFSET]:
@@ -64,12 +69,12 @@ class Recognize(object):
         labels = LabelsFile(outfile=OUTPUT) 
         print "Now detecting commercials.."
         i = 0
-        prev = i
+        prev = 0
         while i < self.duration:
             
             remaining_time = self.duration - i
             sys.stdout.write('\r')
-            sys.stdout.write("Still %s duration of video to be analyzed" % timeFunc.get_time_string(remaining_time))
+            sys.stdout.write("Duration of video pending analysis: %s" % timeFunc.get_time_string(remaining_time))
             sys.stdout.flush()
             
             next, data = self.find_commercial(i)
@@ -78,10 +83,10 @@ class Recognize(object):
                 start = data[0]
                 name = data[1]
                 i = next + (VIDEO_GAP / 2)
-                if (start - prev) >= VIDEO_GAP:
+                if abs(prev - start) >= VIDEO_SPAN: #If greater than the amount to scan, can safely skip
                     labels.write_labels([timeFunc.get_time_string(prev), timeFunc.get_time_string(start), UNCLASSIFIED_CONTENT])
                 else:
-                    labels.write_labels([timeFunc.get_time_string(prev), timeFunc.get_time_string(start), SILENCE])
+                    start = prev
                 prev = next   
                 labels.write_labels([timeFunc.get_time_string(start), timeFunc.get_time_string(next), name])                     
             else:
