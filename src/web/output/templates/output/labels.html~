@@ -8,7 +8,7 @@
             <th>Add</th>
             <th>Del</th>
         </tr>
-        <form method="POST" action="/output/save/" name="updateForm">
+        <form method="POST" action="/output/save/">
             {% csrf_token %}
             {% for item in item_list %}
                 <tr class="tag{{item.3}}" float="right">
