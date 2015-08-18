@@ -7,51 +7,113 @@ import sys
 sys.path.append(BASE_DIR + "/../") #Shift one higher up the parent directory 
 import os
 from constants import *
+from generate import Generate
 import fileHandler
 import timeFunc
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import simplejson
 #from generate import Generate
 
-lines = None
+lines = {} #dictionary, with key as start_secs
 
-def get_list(labels):
+def get_dict(labels):
     
-    #each element of list is
-#        [start, end, name, start_secs, first 2 letters of name + start_secs]
-    l = []
+#    Each element of list is
+#        [start, end, name, start_secs, end_secs]
+    d = {}
     for item in labels:
         name = item[2]
-        t3 = timeFunc.get_seconds(item[0])
-        hid = name[0:2] + str(t3) #Forms unique id based on type of content and start of it in seconds
-        item.append(t3)
-        item.append(hid)
-        l.append(item)
-    return l
+        start_secs = timeFunc.get_seconds(item[0])
+        end_secs = timeFunc.get_seconds(item[1])
+        item.append(start_secs)
+        item.append(end_secs)
+        d[start_secs] = item
+    return d
 
 @csrf_exempt
 def index(request):
     
     global lines
     t = get_template('output/index.html')
-    labels = fileHandler.LabelsFile(infile=BASE_DIR + "/../" + OUTPUT).read_lables(skip=False)
-    lines = get_list(labels)
-    html = t.render(Context({'video_path': WEB_VIDEO_NAME, 'item_list': lines}))
+    os.system('cp ' + BASE_DIR + "/../" + OUTPUT + " "+ BASE_DIR + "/../" + WEB_LABELS)
+    if request.is_ajax() == False:
+        labels = fileHandler.LabelsFile(infile=BASE_DIR + "/../" + WEB_LABELS).read_lables(skip=False)
+        lines = get_dict(labels)
+    keys = lines.keys()
+    keys.sort()
+    values = [lines[key] for key in keys]
+    html = t.render(Context({'video_path': WEB_VIDEO_NAME, 'item_list': values}))
     return HttpResponse(html)
 
 @csrf_exempt
 def update(request):
     
+    global lines 
+    start = int(request.POST.get(u'start'))
+    text = str(request.POST.get(u'text'))
+    #Now we update the value in lines as well
+#    lines[start][2] = text
+    l = lines[start]
+    l[2] = text
+    lines.update({start:l})
+#    print "Updated", lines[start]
+    return HttpResponse(simplejson.dumps({'server_response': '1' }))
+
+@csrf_exempt
+def save(request):
+    
     global lines
     labels = fileHandler.LabelsFile(outfile=BASE_DIR + "/../" + WEB_LABELS)
-    
-    print "Creating the new labels file..."
-    for line in lines:
-        start_secs = str(line[3])
-        start = unicode('start' + start_secs)
-        end = unicode('end' + start_secs)
-        name = unicode('name' + start_secs)
-        l = [str(request.POST.get(start)), str(request.POST.get(end)), str(request.POST.get(name))]
-        print l
+    keys = lines.keys()
+    keys.sort()
+    lines_list = [lines[key] for key in keys]
+    for line in lines_list:
+        l = [line[i] for i in range(3)]
         labels.write_labels(l)
+    return HttpResponse('Successfully updated :-)')
+
+@csrf_exempt
+def delete(request):
     
-    return HttpResponse('Thank you for teaching me :-)')
+    global lines
+    keys = lines.keys()
+    keys.sort()
+    start = int(request.POST.get(u'start_sec'))
+    end = int(request.POST.get(u'end_sec'))
+    
+    #Now we find the key which had the previous start
+    for i in range(len(keys)):
+        if keys[i] == start:
+            break
+    old_start = keys[i - 1]
+    
+    #We assign the endtime of this to the previous start
+    lines[old_start][1] = timeFunc.get_time_string(end)
+    lines[old_start][-1] = end
+    
+    del lines[start]
+    
+    print lines[old_start]
+    return HttpResponse(simplejson.dumps({'server_response': '1' }))
+
+@csrf_exempt    
+def add(request):
+    
+    global lines 
+    actual_start = int(request.POST.get(u'actual_start'))
+    start = int(request.POST.get(u'start_sec'))
+    end = int(request.POST.get(u'end_sec'))
+    
+    if start in lines.keys():
+        #If already in the dictionary don't update
+        return HttpResponse(simplejson.dumps({'server_response': '1' }))
+        
+    #Now we add the value in lines as well
+    lines.update({start: [timeFunc.get_time_string(start), timeFunc.get_time_string(end), UNCLASSIFIED_CONTENT, start, end]})
+    
+#    print lines[actual_start]
+    #We change the "end" of the previous start
+    lines[actual_start][1] = timeFunc.get_time_string(start)
+    
+    print len(lines[start]), len(lines[actual_start])
+    return HttpResponse(simplejson.dumps({'server_response': '1' }))

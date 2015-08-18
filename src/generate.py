@@ -31,6 +31,7 @@ class Generate(object):
             
         except:
             #Creating for the first time
+            print "File does not exist so creating..."
             f = open(DBNAME, "w")
             f.write("name, duration, path, classified\n")
         
@@ -64,12 +65,13 @@ class Generate(object):
         
         choice = raw_input("Are you sure you want to remove all commercials in the database? (yes/no)")
         if choice == "yes":
+            self.djv.clear_data() #Clear the mysql db
             print "Cleaning database.."
             filename = len(os.listdir(DB_AUDIO)) + 1
             for i in range(1, filename):
                 os.remove(DB_AUDIO + str(i) + aud_ext)
                 os.remove(DB_VIDEO + str(i) + vid_ext)
-                os.remove(DBNAME)
+            os.remove(DBNAME)
             print "Database is empty"
         
     def run(self, aud_ext=".wav", vid_ext=".mpg"):
@@ -78,11 +80,12 @@ class Generate(object):
         self.fingerprint_db(aud_ext, vid_ext)
         
 #def test():
-#    
+    
 #    gen = Generate("../data/labels_2015-04-28_0000_US_KABC", "../data/2015-04-28_0000_US_KABC_Eyewitness_News_5PM.mpg")
 #    
 #    gen.run()
 #    gen = Generate("../data/labels", "../data/test.mpg") 
 #    gen.run()
+#    gen.clean_db()
 
 #test()
