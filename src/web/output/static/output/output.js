@@ -58,7 +58,8 @@ function add(start, end, start_str)
 
 function drop(start, end)
 {
-    if(confirm("Are you sure you want to remove this label ?"))
+    var choice = confirm("Are you sure you want to remove this label ?");
+    if(choice)
     {
         $.ajax({
             url : "delete/", 
