@@ -5,7 +5,6 @@ from constants import *
 import ffmpeg
 from dejavu import Dejavu, decoder
 import numpy as np
-from audiodetect import DetectSilence
 from fileHandler import LabelsFile, DatabaseFile
 import sys
 import mimetypes
@@ -34,10 +33,6 @@ class Recognize(object):
         self.frames = self.frames[0] #Since we always create single channel audio
         self.duration = int(self.frames.shape[0] / (self.Fs*1.0)) #Duration of the entire video in seconds
         
-        if self.duration <= (VIDEO_SPAN + VIDEO_GAP):
-            print "Video too short to be analyzed"
-            raise Exception(VIDEO_TOO_SHORT_ERROR)
-
     def find_commercial(self, start, span=VIDEO_SPAN):
         
         """Uses audio fingerprinting to detect known commercials

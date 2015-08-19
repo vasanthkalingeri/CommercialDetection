@@ -10,10 +10,18 @@ class LabelsFile(object):
         self.filename = infile
         self.newfile = outfile
         self.write_count = 0
-        label_file_type = mimetypes.guess_type(self.filename)[0]
-        if label_file_type[:3] != "tex":#The file is not a labels file
-            print "Incorrect label file"
-            raise Exception(INCORRECT_LABEL_FILE_ERROR)
+        
+        if self.filename:
+            label_file_type = mimetypes.guess_type(self.filename)[0]
+            if label_file_type[:3] != "tex":#The file is not a labels file
+                print "Incorrect label file"
+                raise Exception(INCORRECT_LABEL_FILE_ERROR)
+        
+        if self.newfile:
+            label_file_type = mimetypes.guess_type(self.newfile)[0]
+            if label_file_type[:3] != "tex":#The file is not a labels file
+                print "Incorrect label file"
+                raise Exception(INCORRECT_LABEL_FILE_ERROR)
         
     def read_lables(self, skip=True):
         
@@ -87,7 +95,7 @@ class DatabaseFile(object):
     
 #def test():
 #    
-#    LabelsFile('output.txt').generate_tv(4)
+#    LabelsFile(OUTPUT)
 ##    LabelsFile('output.txt').write_labels('test', [1, 1, 'name'])
 
 #test()

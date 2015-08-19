@@ -4,7 +4,7 @@ from django.template import Template, Context, RequestContext
 from django.template.loader import get_template
 from web.settings import BASE_DIR
 import sys
-sys.path.append(BASE_DIR + "/../") #Shift one higher up the parent directory 
+sys.path.append(BASE_DIR + "/../") #Shift one higher up the parent directory to reach src/
 import os
 from constants import *
 from generate import Generate
@@ -35,7 +35,6 @@ def index(request):
     
     global lines
     t = get_template('output/index.html')
-    os.system('cp ' + BASE_DIR + "/../" + OUTPUT + " "+ BASE_DIR + "/../" + WEB_LABELS)
     if request.is_ajax() == False:
         labels = fileHandler.LabelsFile(infile=BASE_DIR + "/../" + WEB_LABELS).read_lables(skip=False)
         lines = get_dict(labels)
@@ -52,11 +51,9 @@ def update(request):
     start = int(request.POST.get(u'start'))
     text = str(request.POST.get(u'text'))
     #Now we update the value in lines as well
-#    lines[start][2] = text
     l = lines[start]
     l[2] = text
     lines.update({start:l})
-#    print "Updated", lines[start]
     return HttpResponse(simplejson.dumps({'server_response': '1' }))
 
 @csrf_exempt
@@ -111,7 +108,6 @@ def add(request):
     #Now we add the value in lines as well
     lines.update({start: [timeFunc.get_time_string(start), timeFunc.get_time_string(end), UNCLASSIFIED_CONTENT, start, end]})
     
-#    print lines[actual_start]
     #We change the "end" of the previous start
     lines[actual_start][1] = timeFunc.get_time_string(start)
     
