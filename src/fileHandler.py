@@ -77,9 +77,8 @@ class DatabaseFile(object):
                 line = line.split(",")
                 name = line[0]
                 duration = line[1]
-                verified = line[-1]
                 duration = timeFunc.get_seconds(duration)
-                return [name, duration, verified]
+                return [name, duration]
             i += 1
         print index, i
         print "Db and csv are not in sync"

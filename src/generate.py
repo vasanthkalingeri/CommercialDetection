@@ -38,14 +38,14 @@ class Generate(object):
             #We open and read the content first
             with open(DBNAME) as f:
                 lines = f.readlines()
-                self.db_content = [line.split(',')[1] for line in lines[1:]]
+                self.db_content = [line.split(',')[1] for line in lines[1:]] #Only names of commercials
             f = open(DBNAME, "a")
             
         except:
             #Creating for the first time
             print "File does not exist so creating..."
             f = open(DBNAME, "w")
-            f.write("name, duration, path, classified\n")
+            f.write("name, duration, path\n")
         
         for data in labels:
         
@@ -65,7 +65,7 @@ class Generate(object):
             
             #Create a corresponding entry in the csv file
             s = ",".join([name, duration])
-            s = s + "," + DB_VIDEO + str(filename) + vid_ext + ",yes\n" #Check verified to be true since human tagged
+            s = s + "," + DB_VIDEO + str(filename) + vid_ext + "\n" #Check verified to be true since human tagged
             f.write(s)
             filename += 1
 
