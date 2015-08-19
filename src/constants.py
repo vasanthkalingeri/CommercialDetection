@@ -54,7 +54,7 @@ except:
 DJV_CONFIDENCE = ConfigRead(DEJAVU_SECTION)['confidence_field']
 DJV_SONG_NAME = ConfigRead(DEJAVU_SECTION)['song_name_field']
 DJV_OFFSET = ConfigRead(DEJAVU_SECTION)['offset_field']
-CONFIDENCE_THRESH = ConfigRead(DEJAVU_SECTION)['confidence']
+CONFIDENCE_THRESH = int(ConfigRead(DEJAVU_SECTION)['confidence'])
 
 #For generate.py
 DB_FOLDER = ConfigRead(GENERATE_SECTION)['db_folder']

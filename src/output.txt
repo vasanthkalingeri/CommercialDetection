@@ -1,1 +1,7 @@
-00:00:00 - 00:09:00 = unclassified
+00:00:00 - 00:00:38 = unclassified
+00:00:38 - 00:00:52 = ad by jeopardy
+00:00:52 - 00:01:06 = ad by jerome's
+00:01:06 - 00:01:36 = ad
+00:01:36 - 00:02:08 = ad by honda
+00:02:08 - 00:02:16 = ad by eye witness news
+00:02:16 - 00:03:35 = unclassified

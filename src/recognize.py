@@ -60,7 +60,8 @@ class Recognize(object):
             
             #Read the database to obtain the end time of the commercial
             index = int(song[DJV_SONG_NAME]) - 1 #This is the line containing the db details
-            name, duration, verified = DatabaseFile(DBNAME).get_line(index)
+            name, duration = DatabaseFile(DBNAME).get_line(index)
+            print name, duration
             
             if duration < song[DJV_OFFSET]:
                 #The offset where it is found cannot exceed the duration of the song
