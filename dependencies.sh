@@ -26,7 +26,7 @@ sudo apt-get install python-scipy
 
 echo "Installing pyaudio"
 wget https://people.csail.mit.edu/hubert/pyaudio/packages/python-pyaudio_0.2.8-1_amd64.deb;
-sudo dpkg -i python-pyaudio_0.2.8-1_i386.deb
+sudo dpkg -i python-pyaudio_0.2.8-1_amd64.deb
 
 echo "Installing matplotlib"
 sudo apt-get install python-matplotlib
@@ -38,6 +38,7 @@ sudo python setup.py install
 echo "Installing mysql"
 sudo apt-get install mysql-server
 sudo apt-get install mysql-client
+sudo apt-get install python-dev libmysqlclient-dev
 
 echo "Installing django"
 sudo apt-get install python-django
@@ -49,3 +50,14 @@ echo "Installing dejavu"
 git clone https://github.com/vasanthkalingeri/dejavu.git
 cd dejavu
 sudo python setup.py install
+
+echo "Installing apache"
+sudo apt-get install apache2 libapache2-mod-wsgi
+
+#When port audio has trouble installing run the following
+#Download the .deb package of portaudio, the following is for amd64
+
+#wget libportaudio-ocaml_0.2.0-1+b2_amd64.deb
+#sudo dpkg -i libportaudio-ocaml_0.2.0-1+b2_amd64.deb
+##If dependency errors
+#sudo apt-get -f install 
