@@ -1,4 +1,10 @@
+"""
+    This file contains all the constants that are used throughout the program.
+    All the values are read from config.ini file.
+"""
+
 import ConfigParser
+from errorCodes import *
 
 DEJAVU_SECTION = "Dejavu"
 SQL_SECTION = "Sql"
@@ -10,6 +16,11 @@ Config = ConfigParser.ConfigParser()
 Config.read('../config.ini')
 
 def ConfigRead(section):
+    
+    """ 
+        Used to read the desired section from the file.
+        Returns: dictionary of name:value pairs present in the section of the config file
+    """
     
     dict1 = {}
     options = Config.options(section)
@@ -25,6 +36,10 @@ def ConfigRead(section):
     return dict1
 
 def ConfigWrite(section, name, value):
+    
+    """
+        Updates the config file with a particular value, in the required section and name
+    """
     
     Config.set(section, name, value)
 
@@ -54,8 +69,13 @@ except:
 DJV_CONFIDENCE = ConfigRead(DEJAVU_SECTION)['confidence_field']
 DJV_SONG_NAME = ConfigRead(DEJAVU_SECTION)['song_name_field']
 DJV_OFFSET = ConfigRead(DEJAVU_SECTION)['offset_field']
-CONFIDENCE_THRESH = int(ConfigRead(DEJAVU_SECTION)['confidence'])
 
+try:
+    CONFIDENCE_THRESH = int(ConfigRead(DEJAVU_SECTION)['confidence'])
+except:
+    print "Confidence thresh has to be integer"
+    raise ValueError(CONFIG_DTYPE_MISMATCH_ERROR)
+    
 #For generate.py
 DB_FOLDER = ConfigRead(GENERATE_SECTION)['db_folder']
 DB_AUDIO = DB_FOLDER + ConfigRead(GENERATE_SECTION)['db_audio']
@@ -69,8 +89,18 @@ AUDIO_EXT = ConfigRead(GENERATE_SECTION)['audio_ext']
 OUTPUT = ConfigRead(RECOGNIZE_SECTION)['output']
 
 #in seconds
-VIDEO_SPAN = int(ConfigRead(RECOGNIZE_SECTION)['video_span'])
-VIDEO_GAP = int(ConfigRead(RECOGNIZE_SECTION)['video_gap'])
+try:
+    VIDEO_SPAN = int(ConfigRead(RECOGNIZE_SECTION)['video_span'])
+except:
+    print "video span has to be integer"
+    raise ValueError(CONFIG_DTYPE_MISMATCH_ERROR)
+
+try:    
+    VIDEO_GAP = int(ConfigRead(RECOGNIZE_SECTION)['video_gap'])
+except:
+    print "video gap has to be integer"
+    raise ValueError(CONFIG_DTYPE_MISMATCH_ERROR)
+    
 TEMP_VIDEO = ConfigRead(RECOGNIZE_SECTION)['temp_video']
 TEMP_AUDIO = ConfigRead(RECOGNIZE_SECTION)['temp_audio']
 
@@ -80,5 +110,3 @@ UNCLASSIFIED_CONTENT = ConfigRead(RECOGNIZE_SECTION)['unclassified_content']
 #For web content
 WEB_VIDEO_NAME = ConfigRead(WEB_SECTION)['web_video_name']
 WEB_LABELS = ConfigRead(WEB_SECTION)['web_labels']
-
-

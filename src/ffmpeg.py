@@ -1,3 +1,7 @@
+"""
+    Deals with execution of ffmpeg commands.
+"""
+
 import os
 
 def create_video(start, duration, video_src, video_dst, force_fps=False, fps=60):

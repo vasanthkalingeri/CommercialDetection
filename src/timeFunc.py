@@ -1,4 +1,13 @@
+"""
+    This file contains time related operations, helpful for reading and writing the output.
+"""
+
 def get_time_string(tsecs):
+    
+    """
+        Given time in seconds, converts it to string
+        Returns: string of the form hh:mm:ss
+    """
     
     if type(tsecs) != int:
         return INVALID_TYPE_OF_TIME_ERROR
@@ -16,6 +25,12 @@ def get_time_string(tsecs):
 
 def get_seconds(tstring):
     
+    """
+        Converts a given time string to seconds.
+        The time string has to be of the form in hh:mm:ss
+        Returns: int, the value of time in seconds
+    """
+    
     form = tstring.count(":")# to check if h:m:s format or m:s format
     
     if form == 0:
@@ -30,7 +45,11 @@ def get_seconds(tstring):
     return secs
 
 def get_delta_string(t1str, t2str):
-    """Finds s2 - s1 """
+
+    """
+        Given two time strings of the form hh:mm:ss, finds the difference in seconds between the two.
+        Returns: int, difference in seconds of t2str - t1str
+    """
     
     t1str = t1str.strip(" ")
     t2str = t2str.strip(" ")
