@@ -1,0 +1,14 @@
+    Alias /static /root/CommercialDetection/src/web/output/static
+    	<Directory /root/CommercialDetection/src/web>
+        	Require all granted
+    	</Directory>
+
+	<Directory /root/CommercialDetection/src/web/web>
+        	<Files wsgi.py>
+            		Require all granted
+        	</Files>
+    	</Directory>
+
+	WSGIDaemonProcess web python-path=/root/CommercialDetection/src/web
+	WSGIProcessGroup web
+	WSGIScriptAlias / /root/CommercialDetection/src/web/web/wsgi.py

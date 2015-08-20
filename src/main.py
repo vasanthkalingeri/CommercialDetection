@@ -73,20 +73,10 @@ def main():
         name, extension = video_name[-5:].split('.')
         name = video_name.split('/')[-1]
         name = name[:-len(extension)-1]
-
-        #We change the default video name and labels file name        
-        default_video_name = WEB_VIDEO_NAME
-        default_label_name = WEB_LABELS
         
-        ConfigWrite(WEB_SECTION, 'web_labels', sys.argv[2])
-        ConfigWrite(WEB_SECTION, 'web_video_name', name + ".webm")
-        
-        os.system("mv " + name + '.webm ' + 'web/output/static/output/')
+        os.system("cp " + sys.argv[2] + " " + WEB_LABELS)        
+        os.system("mv " + name + '.webm ' + 'web/output/static/output/' + WEB_VIDEO_NAME)
         print "Please go to the URL to edit labels"
-        
-        #We rewrite the default video name
-        ConfigWrite(WEB_SECTION, 'web_labels', default_label_name)
-        ConfigWrite(WEB_SECTION, 'web_video_name', default_video_name)
         
     return SUCCESS
 
