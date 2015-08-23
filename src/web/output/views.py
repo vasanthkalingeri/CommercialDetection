@@ -11,7 +11,7 @@ from generate import Generate
 import fileHandler
 import timeFunc
 from django.views.decorators.csrf import csrf_exempt
-from django.utils import simplejson
+import simplejson
 
 lines = {} #dictionary, with key as start_secs
 
