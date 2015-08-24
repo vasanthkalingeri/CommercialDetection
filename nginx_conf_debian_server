@@ -1,0 +1,13 @@
+server {
+        listen 89;
+        access_log /root/access.log;
+        error_log /root/error.log;
+        location /static {
+            root /var/www/CommercialDetection/src/web/output/;
+        }
+
+        location / {
+            proxy_pass http://127.0.0.1:8000;
+        }
+}
+

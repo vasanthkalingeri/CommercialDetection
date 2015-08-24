@@ -1,0 +1,69 @@
+.container {
+    width:100%;
+    height:100% ;
+}
+
+.video {
+    float:left;
+    width:60%;
+    text-align:center;
+    height:50%;
+    padding-vertical:150px;
+}
+
+#output .output {
+    float:left; 
+    width:40%; 
+    height:500px;
+    overflow-y:auto;
+}
+
+#output button[id^='un'] {
+    background-color:red
+}
+
+#output button[id^='ad'] {
+    background-color:LightGreen
+}
+
+#output input[value^='un'], textarea {
+    background-color:orange
+}
+
+#output input[value^='ad'], textarea {
+    background-color:LightGreen
+}
+
+#output table {
+  border-collapse: collapse;
+  width:100%;
+}
+
+#output td {
+   width:80px; 
+}
+
+#output td+td+td {
+    width:auto;
+}
+
+#output td > input[type='text'] {
+    width:100%;
+}
+
+#output td.value input {
+    width:100%;
+}
+
+#output [class^='tag'] {
+    background-color:white;
+}
+
+#output .headtag {
+    background-color:#0066CC;
+    color:white;
+}
+
+#output tr:hover {
+    background-color: #C8C8C8;
+}

@@ -10,30 +10,42 @@
 #    django >= 1.6.1
 
 echo "Installing ffmpeg"
-sudo add-apt-repository ppa:mc3man/trusty-media
-sudo apt-get update
-sudo apt-get install ffmpeg gstreamer0.10-ffmpeg
-sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+sudo apt-get install build-essential libmp3lame-dev libvorbis-dev libtheora-dev libspeex-dev yasm pkg-config libfaac-dev libopenjpeg-dev libx264-dev libvpx-dev
+mkdir software
+cd software
+wget http://ffmpeg.org/releases/ffmpeg-2.7.2.tar.bz2
+cd ..
+mkdir src
+cd src
+tar xvjf ../software/ffmpeg-2.7.2.tar.bz2
+cd ffmpeg-2.7.2
+./configure --enable-gpl --enable-postproc --enable-swscale --enable-avfilter --enable-libmp3lame --enable-libvorbis --enable-libtheora --enable-libx264 --enable-libspeex --enable-shared --enable-pthreads --enable-libopenjpeg --enable-libfaac --enable-nonfree --enable-libvpx
+sudo make -j 2
+sudo make install
+sudo ldconfig
+
+echo "Installing python-pip"
+sudo apt-get install python-pip
 
 echo "Installing OpenCV"
 sudo apt-get install python-opencv
 
 echo "Insatlling numpy"
-#sudo apt-get install python-numpy
+sudo pip install numpy;
 
 echo "Installing scipy"
-sudo apt-get install python-scipy
+sudo pip install scipy;
 
 echo "Installing pyaudio"
+#For x86, change amd64 to x86 and it works
 wget https://people.csail.mit.edu/hubert/pyaudio/packages/python-pyaudio_0.2.8-1_amd64.deb;
 sudo dpkg -i python-pyaudio_0.2.8-1_amd64.deb
 
 echo "Installing matplotlib"
-sudo apt-get install python-matplotlib
+sudo pip install matplotlib;
 
 echo "Installing pydub"
-cd /home/vasanth/packages/pydub-0.14.0
-sudo python setup.py install
+sudo pip install pydub;
 
 echo "Installing mysql"
 sudo apt-get install mysql-server
@@ -41,7 +53,7 @@ sudo apt-get install mysql-client
 sudo apt-get install python-dev libmysqlclient-dev
 
 echo "Installing django"
-sudo apt-get install python-django
+sudo pip install django;
 
 echo "Installing mysqldb"
 sudo apt-get install python-mysql
@@ -51,11 +63,14 @@ git clone https://github.com/vasanthkalingeri/dejavu.git
 cd dejavu
 sudo python setup.py install
 
-echo "Installing apache"
-sudo apt-get install apache2 libapache2-mod-wsgi
+echo "Installing nginx"
+sudo apt-get install nginx
+
+echo "Installing gunicorn"
+pip install gunicorn
 
 #When port audio has trouble installing run the following
-#Download the .deb package of portaudio, the following is for amd64
+#Download the .deb package of portaudio, the following is for amd64, change it to x86 if required.
 
 #wget libportaudio-ocaml_0.2.0-1+b2_amd64.deb
 #sudo dpkg -i libportaudio-ocaml_0.2.0-1+b2_amd64.deb

@@ -1,7 +1,7 @@
 00:00:00 - 00:11:22 = unclassified
 00:11:22 - 00:11:52 = ad by Horizon
-00:11:52 - 00:12:07 = ad by 
-00:12:07 - 00:12:37 = ad by Cuero
+00:11:52 - 00:12:07 = ad by Cuero
+00:12:07 - 00:12:37 = ad by Macy's
 00:12:37 - 00:12:53 = ad by Expedia
 00:12:53 - 00:13:07 = ad by Lipton
 00:13:07 - 00:13:22 = ad by breathe right
