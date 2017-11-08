@@ -1,6 +1,3 @@
-"""
-    File generates fingerprints and stores it in a mysql db
-"""
 import os
 from database import get_database, Database
 import dejavu_fingerprint as djv_fingerprint
@@ -12,7 +9,7 @@ import pydub
 from timeFunc import get_seconds, get_time_string
 from hashlib import sha1
 
-class AdDetect(object):
+class ComDet(object):
 
     AD_ID = "ad_id"
     AD_NAME = 'ad_name'
@@ -50,6 +47,16 @@ class AdDetect(object):
             ad_hash = ad[Database.FIELD_FILE_SHA1]
             self.adhashes_set.add(ad_hash)
 
+    def _get_nprocess(self):
+        # Try to use the maximum amount of processes if not given.
+        try:
+            nprocesses = nprocesses or multiprocessing.cpu_count()
+        except NotImplementedError:
+            nprocesses = 1
+
+        nprocesses = 1 if nprocesses <= 0 else nprocesses
+        return nprocesses
+
     def fingerprint_file(self, input_file_path, input_labels, nprocesses=None):
 
         """
@@ -72,14 +79,6 @@ class AdDetect(object):
                         [start_time, end_time, ad_name] for that ad.
                         start_time, end_time is in seconds from the start of the audio
         """
-        # Try to use the maximum amount of processes if not given.
-        try:
-            nprocesses = nprocesses or multiprocessing.cpu_count()
-        except NotImplementedError:
-            nprocesses = 1
-        else:
-            nprocesses = 1 if nprocesses <= 0 else nprocesses
-
         pool = multiprocessing.Pool(nprocesses)
 
         ads_to_fingerprint = []
@@ -171,18 +170,18 @@ class AdDetect(object):
         #Will only return valid ads that were detected from the database.
         if ad and int(largest_count) >= self.config['confidence_thresh'] and (0 <= nseconds <= ad[Database.FIELD_DURATION]):
             # TODO: Clarify what `get_ad_by_id` should return.
-            adname = ad.get(AdDetect.AD_NAME, None)
-            duration = ad[AdDetect.AD_DURATION]
+            adname = ad.get(ComDet.AD_NAME, None)
+            duration = ad[ComDet.AD_DURATION]
         else:
             return None
 
         ad = {
-            AdDetect.AD_ID : ad_id,
-            AdDetect.AD_NAME : adname,
-            AdDetect.AD_DURATION: duration,
-            AdDetect.CONFIDENCE : largest_count,
-            AdDetect.OFFSET : int(largest),
-            AdDetect.OFFSET_SECS : nseconds}
+            ComDet.AD_ID : ad_id,
+            ComDet.AD_NAME : adname,
+            ComDet.AD_DURATION: duration,
+            ComDet.CONFIDENCE : largest_count,
+            ComDet.OFFSET : int(largest),
+            ComDet.OFFSET_SECS : nseconds}
         return ad
 
     def recognize_segment(self, audio_segment):
@@ -232,22 +231,16 @@ class AdDetect(object):
             ad = self.recognize_segment(audio_segment)
 
             if ad:
-                strt = int(strt - ad[AdDetect.OFFSET_SECS])
-                end = int(strt + ad[AdDetect.AD_DURATION])
+                strt = int(strt - ad[ComDet.OFFSET_SECS])
+                end = int(strt + ad[ComDet.AD_DURATION])
                 strt_string = get_time_string(strt)
                 end_string = get_time_string(end)
-                print "Found:", strt_string, end_string, ad[AdDetect.AD_NAME], ad[AdDetect.CONFIDENCE]
-                labels.append([strt_string, end_string, ad[AdDetect.AD_NAME]])
+                print "Found:", strt_string, end_string, ad[ComDet.AD_NAME], ad[ComDet.CONFIDENCE]
+                labels.append([strt_string, end_string, ad[ComDet.AD_NAME]])
                 strt = end
             else:
                 strt += self.config['analyze_skip']
         return labels
-
-    def recognize_ads_stream(self, input_stream_url):
-        """
-            **TODO**
-        """
-        pass
 
     def clear_data(self):
         """
@@ -297,13 +290,13 @@ def test_generate():
         end = get_seconds(end_string)
         input_labels.append([strt, end, ad_name])
 
-    ad_det = AdDetect()
+    ad_det = ComDet()
     ad_det.fingerprint_file(input_file_path, input_labels)
 
 def test_recognize():
 
     input_file_path = '../test/test.mp4'
-    ad_det = AdDetect()
+    ad_det = ComDet()
     ad_det.recognize_ads_file(input_file_path)
 
 if __name__ == '__main__':
