@@ -11,4 +11,4 @@ Please check comdet.test_generate() and comdet.test_recognize() for more details
 
 *Ensure you pass a dictionary with your configurations, although the tests use default config*
 
-# A lot of the ideas are borrowed from https://github.com/worldveil/dejavu
+### A lot of the ideas are borrowed from https://github.com/worldveil/dejavu
